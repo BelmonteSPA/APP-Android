@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,15 +45,20 @@ fun LoginScreen(
             modifier = Modifier.fillMaxSize()
         )
         OutlinedTextField(
-            value = loginViewModel,
-            onValueChange = {},
+            value = loginViewModel.pass,
+            onValueChange = {
+                loginViewModel.cambiarPass(it)
+            },
             label = {
                 Text("Contraseña")
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            visualTransformation = PasswordVisualTransformation()
         )
         Button(
-            onClick = {},
+            onClick = {
+                println("Boton presionando...")
+            },
             modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
         ) {
             Text(text = "Ingresar")

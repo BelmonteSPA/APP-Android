@@ -6,10 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class LoginViewModel: ViewModel() {
-
     var mail by mutableStateOf("")
+    var pass by mutableStateOf("")
 
     fun cambiarMail(nuevoMail: String){
         mail = nuevoMail
     }
+
+    fun cambiarPass(nuevaPass: String){
+        pass = nuevaPass
+    }
+
+
 }
