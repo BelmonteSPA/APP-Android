@@ -1,14 +1,10 @@
 package com.example.belmonteapp.view
 
-import android.R.attr.onClick
-
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,11 +40,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.belmonteapp.viewModel.LoginViewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
-import com.example.belmonteapp.viewmodel.LoginViewModel
+
 
 
 @Composable
@@ -67,7 +63,7 @@ fun LoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(340.dp)
+                .height(200.dp)
                 .background(
                     color = RojoBase,
                     shape = RoundedCornerShape(
@@ -98,7 +94,6 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()//agrega expacio arriba
                     .padding(top = 56.dp)//agrega expacio extra
             ) {
                 Image(
@@ -108,13 +103,7 @@ fun LoginScreen(
                     contentScale = ContentScale.Fit,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "BELMONTE",
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 4.sp
-                )
+
 
             }
 

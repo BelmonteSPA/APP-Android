@@ -1,6 +1,5 @@
 package com.example.belmonteapp.view
 
-import android.R.id
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

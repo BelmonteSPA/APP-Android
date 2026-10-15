@@ -6,7 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.belmonteapp.view.HomeScreen
 import com.example.belmonteapp.view.LoginScreen
+import com.example.belmonteapp.view.PerfilScreen
 import com.example.belmonteapp.view.RegistroScreen
+import com.example.belmonteapp.view.NuevoViajeScreen
 
 @Composable
 
@@ -22,5 +24,7 @@ fun AppNavigation(){
         composable(Routes.LOGIN){LoginScreen(navController)}
         composable(Routes.HOME){ HomeScreen(navController) }
         composable (Routes.REGISTRO){ RegistroScreen(navController) }
+        composable (Routes.PERFIL){ PerfilScreen(navController) }
+        composable(Routes.NUEVO_VIAJE) { NuevoViajeScreen(navController) }
     }
 }

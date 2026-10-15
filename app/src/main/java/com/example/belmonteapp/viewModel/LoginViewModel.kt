@@ -1,4 +1,4 @@
-package com.example.belmonteapp.viewmodel
+package com.example.belmonteapp.viewModel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +19,7 @@ class LoginViewModel: ViewModel() {
         pass = nuevaPass
     }
 
-    var usuarioCorrecto = Usuario("admin", "123")
+    var usuarioCorrecto = Usuario(0, "admin", "123")
 
     fun login(): Boolean{
         var validador = false

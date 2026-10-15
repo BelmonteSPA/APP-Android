@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -44,7 +46,7 @@ import androidx.navigation.NavController
 import com.example.belmonteapp.R
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
-import com.example.belmonteapp.viewmodel.RegistroViewModel
+import com.example.belmonteapp.viewModel.RegistroViewModel
 
 @Composable
 
@@ -52,16 +54,19 @@ fun RegistroScreen(
     navController: NavController,
     registroViewModel: RegistroViewModel = viewModel()
 ){
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
+            .verticalScroll(rememberScrollState())//activa la barra de desplazamiento
+
     ) {
         //Encabezado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(340.dp)
+                .height(200.dp)
                 .background(
                     color = RojoBase,
                     shape = RoundedCornerShape(
@@ -92,8 +97,7 @@ fun RegistroScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()//agrega expacio arriba
-                    .padding(top = 56.dp)//agrega expacio extra
+                    .padding(top = 28.dp)//agrega expacio extra
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logo),
@@ -101,14 +105,7 @@ fun RegistroScreen(
                     modifier = Modifier.size(104.dp),
                     contentScale = ContentScale.Inside,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "BELMONTE",
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 4.sp
-                )
+                Spacer(modifier = Modifier.height(15.dp))
 
             }
 
@@ -116,7 +113,8 @@ fun RegistroScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 28.dp, bottom = 24.dp)
+                .height(980.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
             shape = RoundedCornerShape(28.dp),
@@ -126,7 +124,8 @@ fun RegistroScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth().padding(32.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text(
                     text = "Crear Cuenta",
@@ -135,32 +134,93 @@ fun RegistroScreen(
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Nombres",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
                 OutlinedTextField(
-                    value = registroViewModel.mail,
+                    value = registroViewModel.nombres,
                     onValueChange = {
                         registroViewModel.agregarNombre(it)
                     },
                     label = {
-                        Text("Nombres")
+                        Text("Ej: Juan Antonio")
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Apellidos",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
                 OutlinedTextField(
-                    value = registroViewModel.pass,
+                    value = registroViewModel.apellidos,
                     onValueChange = {
                         registroViewModel.agregarApellido(it)
                     },
                     label = {
-                        Text("Apellidos")
+                        Text("Ej: Perez Gonzalez")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Rut",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.rut,
+                    onValueChange = {
+                        registroViewModel.agregarRut(it)
+                    },
+                    label = {
+                        Text("Ej: 00.000.000-0")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Correo",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.mail,
+                    onValueChange = {
+                        registroViewModel.agregarMail(it)
+                    },
+                    label = {
+                        Text("Ej: tuNombre@mail.com")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Contraseña",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
                 OutlinedTextField(
                     value = registroViewModel.pass,
                     onValueChange = {
@@ -173,14 +233,41 @@ fun RegistroScreen(
                     visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Confirmar Contraseña",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
                 OutlinedTextField(
                     value = registroViewModel.pass,
                     onValueChange = {
                         registroViewModel.agregarPass(it)
                     },
                     label = {
-                        Text("Contraseña")
+                        Text("Confirmar Contraseña")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Ingresa Código Trabajador",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.codigo,
+                    onValueChange = {
+                        registroViewModel.agregarCodigo(it)
+                    },
+                    label = {
+                        Text("Código opcional")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
@@ -189,7 +276,7 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        registroViewModel.textoVisible
+                        navController.navigate(Routes.PERFIL)
 
                     },
                     modifier = Modifier
@@ -205,10 +292,22 @@ fun RegistroScreen(
                         color = Color.White
                     )
                 }
-
-
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Ya tienes cuenta?",
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+                TextButton(
+                    onClick = {navController.navigate(Routes.LOGIN) }
+                ) {
+                    Text(
+                        text = "Inicia Sesión aquí",
+                        color = RojoBase
+                    )
+                }
 
             }
         }
     }
+
 }
