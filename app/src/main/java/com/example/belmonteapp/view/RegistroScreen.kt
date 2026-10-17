@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
+import com.example.belmonteapp.componentes.SelectorDesplegable
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
@@ -113,7 +114,7 @@ fun RegistroScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(980.dp)
+                .height(1200.dp)
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
@@ -188,6 +189,55 @@ fun RegistroScreen(
                     },
                     label = {
                         Text("Ej: 00.000.000-0")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Región",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                SelectorDesplegable(
+                    label = "",
+                    opciones = registroViewModel.regiones,
+                    seleccion = registroViewModel.region,
+                    onSeleccion = { registroViewModel.cambiarRegion(it) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Comuna",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                SelectorDesplegable(
+                    label = "",
+                    opciones = registroViewModel.comunas,
+                    seleccion = registroViewModel.comuna,
+                    onSeleccion = { registroViewModel.cambiarComuna(it) },
+                    enabled = registroViewModel.region.isNotEmpty()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Dirección",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.rut,
+                    onValueChange = {
+                        registroViewModel.agregarRut(it)
+                    },
+                    label = {
+                        Text("Ej: Calle 1")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
@@ -276,7 +326,7 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        navController.navigate(Routes.PERFIL)
+                        navController.navigate(Routes.CONDUCTOR)
 
                     },
                     modifier = Modifier

@@ -1,9 +1,13 @@
 package com.example.belmonteapp.view
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,9 +34,11 @@ import androidx.compose.material.icons.automirrored.filled.CallSplit
 import androidx.compose.material.icons.automirrored.filled.PhoneCallback
 import androidx.compose.material.icons.automirrored.filled.PhoneMissed
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -46,8 +52,13 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -60,18 +71,33 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.belmonteapp.viewModel.PerfilViewModel
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import com.example.belmonteapp.R
+import com.example.belmonteapp.componentes.SelectorDesplegable
 import com.example.belmonteapp.navigation.Routes
+import com.example.belmonteapp.ui.theme.Gris
+import com.example.belmonteapp.ui.theme.GrisOscuro
 import com.example.belmonteapp.ui.theme.RojoBase
+import com.example.belmonteapp.viewModel.RegistroViewModel
+import com.example.belmonteapp.componentes.coloresCampo
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
     navController: NavController,
-    perfilViewModel: PerfilViewModel = viewModel()
+    perfilViewModel: PerfilViewModel = viewModel(),
+    registroViewModel: RegistroViewModel = viewModel()
+
 
     ) {
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }
 
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri -> if (uri != null) fotoUri = uri }
+
+    var editando by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -108,6 +134,18 @@ fun PerfilScreen(
                         tint = Color.White
                     )
                 }
+        FotoPerfil(
+            fotoUri = fotoUri,
+            onClick = {
+                launcher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 25.dp, bottom = 60.dp)
+        )// Start = empuja hacia lado derecho
+         //Bottom = empuja hacia arriba
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -118,14 +156,16 @@ fun PerfilScreen(
             Text(
                 text = "Perfil",
                 color = Color.White,
-                fontSize = 20.sp,
+                fontSize = 20.sp,//tamaño de la fuente
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 4.sp,
 
                 )
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(60.dp))
             Text(
-                text = "Nombre Usuario",
+                modifier = Modifier
+                    .statusBarsPadding(),
+                text = perfilViewModel.nombreUsuario.ifEmpty { "Usuario" },
                 color = Color.White,
                 fontSize = 15.sp,
                 letterSpacing = 4.sp,
@@ -284,7 +324,7 @@ fun PerfilScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(900.dp)
+                .height(1200.dp)//altura de la card
                 .padding(horizontal = 24.dp)
                 .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
@@ -300,7 +340,7 @@ fun PerfilScreen(
             ) {
                 Button(
                     onClick = {
-                        navController.navigate(Routes.PERFIL)
+                        editando = !editando
                     },
                     modifier = Modifier
                         .padding(top = 12.dp)
@@ -313,7 +353,7 @@ fun PerfilScreen(
                     )
                 ){
                     Text(
-                        text = "Editar",
+                        text = if (editando) "Cancelar" else "Editar",
                         color = Color.White
                     )
                 }
@@ -325,14 +365,17 @@ fun PerfilScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = registroViewModel.nombres,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarNombres(it)},
                     label = {
                         Text("Ej: Juan Antonio")
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
+
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
@@ -343,14 +386,16 @@ fun PerfilScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = registroViewModel.apellidos,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarApellidos(it)},
                     label = {
                         Text("Ej: Perez Gonzalez")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
@@ -361,14 +406,65 @@ fun PerfilScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = registroViewModel.rut,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarRut(it)},
                     label = {
                         Text("Ej: 00.000.000-0")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Región",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                SelectorDesplegable(
+                    label = "",
+                    opciones = registroViewModel.regiones,
+                    seleccion = registroViewModel.region,
+                    onSeleccion = { registroViewModel.cambiarRegion(it) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Comuna",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                SelectorDesplegable(
+                    label = "",
+                    opciones = registroViewModel.comunas,
+                    seleccion = registroViewModel.comuna,
+                    onSeleccion = { registroViewModel.cambiarComuna(it) },
+                    enabled = registroViewModel.region.isNotEmpty()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Dirección",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.direccion,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarDireccion(it)},
+                    label = {
+                        Text("Ej: Calle 1")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
@@ -379,14 +475,16 @@ fun PerfilScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
+                    value = registroViewModel.mail,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarCorreo(it)},
                     label = {
                         Text("Ej: tuNombre@mail.com")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
@@ -397,33 +495,18 @@ fun PerfilScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = registroViewModel.pass,
+                    enabled = editando,
+                    onValueChange = {registroViewModel.cambiarPass(it)},
                     label = {
                         Text("Contraseña")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = coloresCampo()
                 )
                 Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Direción",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    label = {
-                        Text("Ej: calle 1")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Ingresa Código Trabajador",
                     fontSize = 15.sp,
@@ -463,6 +546,59 @@ fun PerfilScreen(
 
 
             }
+        }
+    }
+}
+
+@Composable
+fun FotoPerfil(
+    fotoUri: Uri?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.size(90.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .border(3.dp, Color.White, CircleShape)
+                .background(Color.LightGray)
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            if (fotoUri != null) {
+                AsyncImage(
+                    model = fotoUri,
+                    contentDescription = "Foto de perfil",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+        }
+
+        // Iconito de camara en la esquina
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CameraAlt,
+                contentDescription = "Cambiar foto",
+                tint = Color(0xFFC8102E), // el rojo de tu app
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

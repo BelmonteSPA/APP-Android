@@ -11,7 +11,9 @@ data class Cuenta (
     val nombres: String,
     val apellidos: String,
     val rut: String,
-    val usuario: Usuario
+    val usuario: Usuario,
+    val tipo: Tipo = Tipo.PASAJERO
 
 ){
+
 }

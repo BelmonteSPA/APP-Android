@@ -12,4 +12,6 @@ val Pink40 = Color(0xFF7D5260)
 
 val RojoBase = Color(0xffC8102E)
 
-val Gris = Color(0xFF9F9898)
+val Gris = Color(0xFFB9AFAF)
+
+val GrisOscuro = Color(0xFF333333)

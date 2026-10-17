@@ -44,6 +44,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.ui.tooling.preview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,7 +70,11 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
 
     implementation(libs.androidx.room3.runtime)
+    debugImplementation(libs.androidx.ui.tooling)
     ksp(libs.androidx.room3.compiler)
 
     implementation("androidx.compose.material:material-icons-extended")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
 }

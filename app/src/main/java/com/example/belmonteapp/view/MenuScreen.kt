@@ -15,8 +15,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
+
 @Composable
 fun MenuScreen(){
+
     var selector by remember { mutableIntStateOf(2) }
 
     val items = listOf(
@@ -27,3 +29,4 @@ fun MenuScreen(){
     )
 
 }
+

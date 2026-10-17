@@ -12,6 +12,10 @@ lifexycleViewModelCompose = "2.8.7"
 navigationCompose = "2.10.2"
 room = "3.0.3"
 material3 = "1.4.0"
+composeMaterial = "1.7.1"
+uiToolingPreview = "1.12.1"
+uiTooling = "1.12.1"
+foundation = "1.12.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +36,10 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
 androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "uiToolingPreview" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 
 [plugins]

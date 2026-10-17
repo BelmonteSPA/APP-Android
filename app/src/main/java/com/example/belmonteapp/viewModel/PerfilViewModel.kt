@@ -1,8 +1,13 @@
 package com.example.belmonteapp.viewModel
 
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +19,12 @@ class PerfilViewModel: ViewModel() {
     var origen by mutableStateOf("")
     var fecha by mutableStateOf("")
     var hora by mutableStateOf("")
+    var nombreUsuario by mutableStateOf("")
+        private set
     // Estado que guarda la URI de la foto seleccionada
     private val _imagenUri = MutableStateFlow<Uri?>(null)
     val imagenUri: StateFlow<Uri?> = _imagenUri.asStateFlow()
+
     // Función para actualizar la foto desde la pantalla
     fun cambiarFotoPerfil(nuevaUri: Uri?) {
         _imagenUri.value = nuevaUri
