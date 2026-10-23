@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.belmonteapp.ui.theme.GrisOscuro
 import com.example.belmonteapp.ui.theme.RojoBase
 
-//cada opcion de la barra, texto e icono
+//cada opción de la barra, texto e icono
 data class OpcionBarra (
     val texto : String,
     val icono : ImageVector
