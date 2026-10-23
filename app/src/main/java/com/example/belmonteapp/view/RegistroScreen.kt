@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
 import com.example.belmonteapp.componentes.SelectorDesplegable
+import com.example.belmonteapp.data.SesionManager
 import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
@@ -350,7 +351,7 @@ fun RegistroScreen(
                 Button(
                     onClick = {
                         if (registroViewModel.crearCuenta()) {
-                            when (registroViewModel.cuentaActual?.tipo) {
+                            when (SesionManager.cuentaActual?.tipo) {
                                 Tipo.CONDUCTOR -> navController.navigate(Routes.CONDUCTOR)
                                 else -> navController.navigate(Routes.PERFIL)
                             }

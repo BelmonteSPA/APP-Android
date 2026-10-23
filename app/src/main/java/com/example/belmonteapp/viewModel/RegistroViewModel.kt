@@ -33,6 +33,7 @@ class RegistroViewModel: ViewModel() {
 
     var errorPerfil by mutableStateOf("")
     var errorCodigo by mutableStateOf(false)
+    var errorRegistro by mutableStateOf("")
 
 
     fun cargarDesdeSesion() {
@@ -80,14 +81,39 @@ class RegistroViewModel: ViewModel() {
         return true
     }
 
-    fun crearCuenta() {
+    fun crearCuenta(): Boolean {
+        errorRegistro = ""
+
+        if (nombres.isBlank() || apellidos.isBlank() || rut.isBlank() ||
+            mail.isBlank() || pass.isBlank()) {
+            errorRegistro = "Completa todos los campos obligatorios"
+            return false
+        }
+        if (SesionManager.cuentas.any { it.usuario.mail == mail }) {
+            errorRegistro = "Ya existe una cuenta con ese correo"
+            return false
+        }
+
+        // Código vacío = pasajero, válido = conductor, inválido = error
+        val tipoNuevo = when {
+            codigo.isBlank() -> Tipo.PASAJERO
+            DataP.CodigosTrabajador.esValido(codigo) -> Tipo.CONDUCTOR
+            else -> {
+                errorCodigo = true
+                return false
+            }
+        }
+        errorCodigo = false
+
         SesionManager.registrar(
             Cuenta(
                 nombres = nombres, apellidos = apellidos, rut = rut, telefono = telefono,
                 usuario = Usuario(mail = mail, pass = pass),
+                tipo = tipoNuevo,
                 region = region, comuna = comuna, direccion = direccion
             )
         )
+        return true
     }
 
 
