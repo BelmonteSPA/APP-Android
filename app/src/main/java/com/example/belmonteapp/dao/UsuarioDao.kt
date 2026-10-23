@@ -23,4 +23,6 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuario ORDEN BY id DESC")
     fun obtenerUsuario(): Flow<List<Usuario>>
 
+    @Query("SELECT * FROM usuario WHERE id = :id")
+    fun obtenerUsuarioPorId(id: Int): Flow<Usuario?>
 }

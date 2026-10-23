@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
 import com.example.belmonteapp.componentes.SelectorDesplegable
+import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
@@ -114,7 +115,7 @@ fun RegistroScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1200.dp)
+                .height(1300.dp)
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
@@ -171,7 +172,6 @@ fun RegistroScreen(
                         Text("Ej: Perez Gonzalez")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -191,7 +191,6 @@ fun RegistroScreen(
                         Text("Ej: 00.000.000-0")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -232,15 +231,14 @@ fun RegistroScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = registroViewModel.rut,
+                    value = registroViewModel.direccion,
                     onValueChange = {
-                        registroViewModel.agregarRut(it)
+                        registroViewModel.agregarDireccion(it)
                     },
                     label = {
                         Text("Ej: Calle 1")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -260,7 +258,25 @@ fun RegistroScreen(
                         Text("Ej: tuNombre@mail.com")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Teléfono",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.telefono,
+                    onValueChange = {
+                        registroViewModel.agregarTelefono(it)
+                    },
+                    label = {
+                        Text("Ej: +56911110000")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -292,9 +308,9 @@ fun RegistroScreen(
                     modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = registroViewModel.pass,
+                    value = registroViewModel.confirmarPass,
                     onValueChange = {
-                        registroViewModel.agregarPass(it)
+                        registroViewModel.agregarConfirmarPass(it)
                     },
                     label = {
                         Text("Confirmar Contraseña")
@@ -303,6 +319,13 @@ fun RegistroScreen(
                     visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                if (registroViewModel.confirmarPass.isNotEmpty() && !registroViewModel.passCoinciden) {
+                    Text(
+                        text = "Las contraseñas no coinciden",
+                        color = Color.Red,
+                        fontSize = 14.sp
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Ingresa Código Trabajador",
@@ -326,7 +349,12 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        navController.navigate(Routes.CONDUCTOR)
+                        if (registroViewModel.crearCuenta()) {
+                            when (registroViewModel.cuentaActual?.tipo) {
+                                Tipo.CONDUCTOR -> navController.navigate(Routes.CONDUCTOR)
+                                else -> navController.navigate(Routes.PERFIL)
+                            }
+                        }
 
                     },
                     modifier = Modifier

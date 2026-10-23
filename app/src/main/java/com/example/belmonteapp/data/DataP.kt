@@ -18,4 +18,10 @@ class DataP{
                 Usuario(2, "admin@belmonte.cl", "123"), Tipo.ADMINISTRADOR)
         )
     }
+    object CodigosTrabajador {
+        val validos = listOf("COND-001", "COND-002", "COND-003")
+
+
+        fun esValido(codigo: String) = codigo.trim().uppercase() in validos
+    }
 }

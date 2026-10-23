@@ -43,15 +43,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.belmonteapp.viewModel.LoginViewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
+import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
-
+import com.example.belmonteapp.viewModel.RegistroViewModel
 
 
 @Composable
 fun LoginScreen(
     navController: NavController,
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    registroViewModel: RegistroViewModel = viewModel()
 ){
 
     Column(
@@ -159,10 +161,14 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginViewModel.textoVisible = false
-                        val validador = loginViewModel.login()
+                        val validador = registroViewModel.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
 
                         if (validador) {
-                            navController.navigate(Routes.HOME)
+                            when (registroViewModel.cuentaActual?.tipo) {
+                                Tipo.CONDUCTOR -> navController.navigate(Routes.CONDUCTOR)
+                                Tipo.ADMINISTRADOR -> navController.navigate(Routes.ADMIN)
+                                else -> navController.navigate(Routes.PERFIL)
+                            }
                         } else {
                             loginViewModel.textoVisible = true
                         }

@@ -7,4 +7,5 @@ object Routes {
     const val PERFIL = "perfil"
     const val NUEVO_VIAJE = "nuevo viaje"
     const val CONDUCTOR = "Conductor"
+    const val ADMIN = "Administrador"
 }

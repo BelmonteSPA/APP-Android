@@ -1,5 +1,6 @@
 package com.example.belmonteapp.modelo
 
+import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 
@@ -11,8 +12,12 @@ data class Cuenta (
     val nombres: String,
     val apellidos: String,
     val rut: String,
-    val usuario: Usuario,
-    val tipo: Tipo = Tipo.PASAJERO
+    @Embedded val usuario: Usuario,
+    val tipo: Tipo = Tipo.PASAJERO,
+    val region: String = "",
+    val comuna: String = "",
+    val direccion: String = "",
+    val telefono: String = "",
 
 ){
 

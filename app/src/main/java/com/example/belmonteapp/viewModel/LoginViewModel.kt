@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.belmonteapp.data.SesionManager
 import com.example.belmonteapp.modelo.Usuario
 
 class LoginViewModel: ViewModel() {
@@ -19,13 +20,5 @@ class LoginViewModel: ViewModel() {
         pass = nuevaPass
     }
 
-    var usuarioCorrecto = Usuario(0, "admin", "123")
-
-    fun login(): Boolean{
-        var validador = false
-        if(mail == usuarioCorrecto.mail && pass == usuarioCorrecto.pass){
-            validador = true
-        }
-        return validador
-    }
+    fun login(): Boolean = SesionManager.iniciarSesion(mail.trim(), pass)
 }

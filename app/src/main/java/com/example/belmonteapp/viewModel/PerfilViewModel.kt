@@ -10,11 +10,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.belmonteapp.modelo.Usuario
+import com.example.belmonteapp.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class PerfilViewModel: ViewModel() {
+class PerfilViewModel: ViewModel(
+
+) {
+
     var destino by mutableStateOf("")
     var origen by mutableStateOf("")
     var fecha by mutableStateOf("")
@@ -43,6 +50,7 @@ class PerfilViewModel: ViewModel() {
     fun agregarHora(nuevaHora: String){
         hora = nuevaHora
     }
+
 
 
 }
