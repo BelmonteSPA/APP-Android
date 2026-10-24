@@ -2,13 +2,9 @@ package com.example.belmonteapp.viewModel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.belmonteapp.data.SesionManager
-import com.example.belmonteapp.data.SesionManager.cuentaActual
-import com.example.belmonteapp.modelo.Cuenta
 import com.example.belmonteapp.modelo.Tipo
-import com.example.belmonteapp.navigation.Routes
 
 class MenuViewModel: ViewModel(
 

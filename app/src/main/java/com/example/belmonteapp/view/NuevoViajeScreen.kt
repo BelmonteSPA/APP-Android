@@ -1,5 +1,6 @@
 package com.example.belmonteapp.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,18 +36,19 @@ fun NuevoViajeScreen(
 ){
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .background(Color.White)//es el color del fondo
+            .fillMaxWidth()
             .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
+
 
     ) {
         Text(
-            text = "Historial",
+            text = "Nuevo Viaje",
             modifier = Modifier.padding(top = 10.dp)
         )
         Card(
             modifier = Modifier
-                .fillMaxWidth().weight(1f)
+                .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
             shape = RoundedCornerShape(28.dp),
@@ -56,7 +58,7 @@ fun NuevoViajeScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 20.dp)
             ) {
                 Text(

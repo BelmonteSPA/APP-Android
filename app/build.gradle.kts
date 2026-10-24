@@ -77,4 +77,7 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
+
+    implementation("com.google.maps.android:maps-compose:<última versión>")
+    implementation("com.google.android.gms:play-services-maps:<última versión>")
 }
