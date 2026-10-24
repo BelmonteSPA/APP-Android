@@ -93,6 +93,7 @@ fun ConductorScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)//es el color del fondo
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState())//activa la barra de desplazamiento
 
@@ -304,7 +305,7 @@ fun ConductorScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Navigation,
-                            contentDescription = "Natificación",
+                            contentDescription = "Navigation",
                             tint = Color.White
                         )
                     }
@@ -315,7 +316,7 @@ fun ConductorScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1100.dp)//altura de la card
+                .height(1210.dp)//altura de la card
                 .padding(horizontal = 24.dp)
                 .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
@@ -479,6 +480,25 @@ fun ConductorScreen(
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
+                    text = "Teléfono",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.telefono,
+                    onValueChange = {
+                        registroViewModel.cambiarTelefono(it)
+                    },
+                    label = {
+                        Text("Ej: +56911110000")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
                     text = "Contraseña",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.ExtraBold,
@@ -526,7 +546,16 @@ fun ConductorScreen(
                 }
                 Button(
                     onClick = {
-                        if (registroViewModel.guardarCambios()) editando = false
+                        SesionManager.cuentaActual?.let { actual ->
+                            SesionManager.actualizarCuenta(
+                                actual.copy(
+                                    nombres = registroViewModel.nombres,
+                                    apellidos = registroViewModel.apellidos,
+                                    rut = registroViewModel.rut
+                                )
+                            )
+                        }
+                        editando = false
 
                     },
                     enabled = editando,

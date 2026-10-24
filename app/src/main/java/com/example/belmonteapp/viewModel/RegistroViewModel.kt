@@ -93,6 +93,10 @@ class RegistroViewModel: ViewModel() {
             errorRegistro = "Ya existe una cuenta con ese correo"
             return false
         }
+        if (!passCoinciden) {
+            errorRegistro = "Las contraseñas no coinciden"
+            return false
+        }
 
         // Código vacío = pasajero, válido = conductor, inválido = error
         val tipoNuevo = when {
@@ -193,40 +197,7 @@ class RegistroViewModel: ViewModel() {
         telefono = nuevo
     }
 
-    fun validar(): Boolean {
-        return region.isNotEmpty() && comuna.isNotEmpty()
-    }
 
-    fun perfil(): Boolean {
-        val cuenta = DataP.UsuariosPrueba.cuentas.find {
-            it.usuario.mail == mail && it.usuario.pass == pass
-        }
-        cuentaActual = cuenta
-        return cuenta != null
-    }
-
-    fun validarCodigoTrabajador(): Boolean {
-        // Campo vacío = sigue siendo pasajero (el código es opcional)
-        if (codigo.isBlank()) {//Comprueba si la variable está vacía o contiene solo espacios en blanco.
-            errorCodigo = false
-            return true
-        }
-        return if (DataP.CodigosTrabajador.esValido(codigo)) {
-            errorCodigo = false
-            cuentaActual = cuentaActual?.copy(tipo = Tipo.CONDUCTOR)
-            true
-        } else {
-            errorCodigo = true
-            false
-        }
-    }
-    fun iniciarSesion(mailIngresado: String, passIngresada: String): Boolean {
-        val cuenta = DataP.UsuariosPrueba.cuentas.find {
-            it.usuario.mail == mailIngresado && it.usuario.pass == passIngresada
-        }
-        cuentaActual = cuenta
-        return cuenta != null
-    }
 
 
 }

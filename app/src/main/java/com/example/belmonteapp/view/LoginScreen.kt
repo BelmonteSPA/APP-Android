@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.belmonteapp.viewModel.LoginViewModel
 import androidx.navigation.NavController
 import com.example.belmonteapp.R
+import com.example.belmonteapp.data.SesionManager
 import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
@@ -161,13 +162,11 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginViewModel.textoVisible = false
-                        val validador = registroViewModel.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
+                        val validador = SesionManager.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
 
                         if (validador) {
-                            when (registroViewModel.cuentaActual?.tipo) {
-                                Tipo.CONDUCTOR -> navController.navigate(Routes.CONDUCTOR)
-                                Tipo.ADMINISTRADOR -> navController.navigate(Routes.ADMIN)
-                                else -> navController.navigate(Routes.PERFIL)
+                            navController.navigate(Routes.MENU) {
+                                popUpTo(Routes.HOME) { inclusive = true }
                             }
                         } else {
                             loginViewModel.textoVisible = true

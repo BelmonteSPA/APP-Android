@@ -353,7 +353,7 @@ fun RegistroScreen(
                         if (registroViewModel.crearCuenta()) {
                             when (SesionManager.cuentaActual?.tipo) {
                                 Tipo.CONDUCTOR -> navController.navigate(Routes.CONDUCTOR)
-                                else -> navController.navigate(Routes.PERFIL)
+                                else -> navController.navigate(Routes.MENU)
                             }
                         }
 

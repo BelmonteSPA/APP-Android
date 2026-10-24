@@ -88,10 +88,13 @@ fun PerfilScreen(
     ) { uri -> if (uri != null) fotoUri = uri }
 
     var editando by remember { mutableStateOf(false) }
+    // Carga los datos de la cuenta que inició sesión
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
+
 
     Column(
         modifier = Modifier
+            .background(Color.White)//es el color del fondo
             .fillMaxSize()
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState())//activa la barra de desplazamiento
@@ -315,7 +318,7 @@ fun PerfilScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1100.dp)//altura de la card
+                .height(1210.dp)//altura de la card
                 .padding(horizontal = 24.dp)
                 .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
@@ -479,6 +482,25 @@ fun PerfilScreen(
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
+                    text = "Teléfono",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = registroViewModel.telefono,
+                    onValueChange = {
+                        registroViewModel.cambiarTelefono(it)
+                    },
+                    label = {
+                        Text("Ej: +56911110000")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
                     text = "Contraseña",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.ExtraBold,
@@ -526,10 +548,16 @@ fun PerfilScreen(
                 }
                 Button(
                     onClick = {
-                        if (registroViewModel.validarCodigoTrabajador()) {
-                            val esConductor = registroViewModel.cuentaActual?.tipo == Tipo.CONDUCTOR
-                            navController.navigate(if (esConductor) Routes.CONDUCTOR else Routes.PERFIL)
-                        }},
+                        SesionManager.cuentaActual?.let { actual ->
+                            SesionManager.actualizarCuenta(
+                                actual.copy(
+                                    nombres = registroViewModel.nombres,
+                                    apellidos = registroViewModel.apellidos,
+                                    rut = registroViewModel.rut
+                                )
+                            )
+                        }
+                        editando = false},
                     enabled = editando,
                     modifier = Modifier
                         .padding(top = 12.dp)
@@ -548,6 +576,7 @@ fun PerfilScreen(
 
             }
         }
+        Spacer(modifier = Modifier.height(100.dp))//los campos finales se puedan ver completos
     }
 }
 
