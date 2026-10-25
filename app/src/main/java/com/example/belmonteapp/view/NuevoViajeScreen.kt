@@ -24,6 +24,9 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.TilesOverlay
+import androidx.core.content.ContextCompat
+import com.example.belmonteapp.R
 
 @Composable
 fun NuevoViajeScreen(
@@ -31,7 +34,7 @@ fun NuevoViajeScreen(
     menuViewModel: MenuViewModel = viewModel(),
     nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
 ) {
-
+    var mapView by remember { mutableStateOf<MapView?>(null) }
 
     // Box permite superponer elementos (como capas)
     Box(modifier = Modifier.fillMaxSize()) {
@@ -43,6 +46,7 @@ fun NuevoViajeScreen(
                 Configuration.getInstance().userAgentValue = "BelmonteApp/1.0 (tucorreo@gmail.com)"
 
                 MapView(context).apply {
+                    mapView = this
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
 
@@ -68,13 +72,14 @@ fun NuevoViajeScreen(
                                     when (nuevoViajeViewModel.estadoSeleccion) {
 
                                         EstadoSeleccion.SELECCIONAR_ORIGEN -> {
-                                            println("CLICK ORIGEN")
 
-                                            nuevoViajeViewModel.establecerOrigen(context,p)
+                                            nuevoViajeViewModel.establecerOrigen(context, p)
                                         }
+
                                         EstadoSeleccion.SELECCIONANDO_DESTINO -> {
-                                            nuevoViajeViewModel.establecerDestino(context,p)
+                                            nuevoViajeViewModel.establecerDestino(context, p)
                                         }
+
                                         EstadoSeleccion.LISTO -> {
                                         }
                                     }
@@ -95,12 +100,66 @@ fun NuevoViajeScreen(
                 }
             }
         )
+        //Cambio de marcadores en el mapa (origen o destino)
+        LaunchedEffect(
+            nuevoViajeViewModel.marcadorOrigen,
+            nuevoViajeViewModel.marcadorDestino
+        ) {
 
+            mapView?.let { mapa ->
+
+                mapa.overlays.removeAll {
+                    it is Marker &&
+                            (it.title == "Origen" || it.title == "Destino")
+                }
+
+                nuevoViajeViewModel.marcadorOrigen?.let { punto ->
+
+                    val origenMarker = Marker(mapa)
+
+                    origenMarker.position = punto
+                    origenMarker.title = "Origen"
+
+                    origenMarker.icon =
+                        ContextCompat.getDrawable(
+                            mapa.context,
+                            R.drawable.ic_origen
+                        )
+                    origenMarker.setAnchor(
+                        Marker.ANCHOR_CENTER,
+                        Marker.ANCHOR_BOTTOM
+                    )
+
+
+                    mapa.overlays.add(origenMarker)
+                }
+
+                nuevoViajeViewModel.marcadorDestino?.let { punto ->
+
+                    val destinoMarker = Marker(mapa)
+
+                    destinoMarker.position = punto
+                    destinoMarker.title = "Destino"
+                    destinoMarker.icon =
+                        ContextCompat.getDrawable(
+                            mapa.context,
+                            R.drawable.ic_destino
+                        )
+                    destinoMarker.setAnchor(
+                        Marker.ANCHOR_CENTER,
+                        Marker.ANCHOR_BOTTOM
+                    )
+                    mapa.overlays.add(destinoMarker)
+                }
+
+                mapa.invalidate()
+            }
+        }
         // CAPA 2 (Arriba): Tarjeta de ingreso de direcciones estilo Uber
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
+                .height(240.dp)
                 .statusBarsPadding()
                 .padding(25.dp)
                 .align(Alignment.TopCenter), // Lo posiciona arriba en la pantalla
@@ -130,62 +189,73 @@ fun NuevoViajeScreen(
                         Text("🏁 ${nuevoViajeViewModel.direccionDestino}")
                     }
 
+                }
+                nuevoViajeViewModel.errorDistancia?.let {
 
+                    Text(
+                        text = it,
+                        color = Color.Red
+                    )
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 300.dp, end = 30.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
+            if (
+                nuevoViajeViewModel.estadoSeleccion == EstadoSeleccion.LISTO
             ) {
-                Button(
-                    onClick = {
-                        navController.navigate(Routes.HOME)
-
-
-                    },
+                Row(
                     modifier = Modifier
-                        .padding(end = 24.dp, bottom = 24.dp)
-                        .offset(y = (-50).dp)
-                        .wrapContentWidth()
-                        .height(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
-                    Text(
-                        text = "Cancelar",
-                        color = Color.White
-                    )
-                }
-                Button(
-                    onClick = {
-                        navController.navigate(Routes.HOME)
+                        .fillMaxWidth()
+                        .padding(start = 300.dp, end = 30.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
+                ) {
+                    Button(
+                        onClick = {
+                            navController.navigate(Routes.HOME)
 
 
-                    },
-                    modifier = Modifier
-                        .padding(end = 24.dp, bottom = 24.dp)
-                        .offset(y = (-50).dp)
-                        .wrapContentWidth()
-                        .height(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
-                    Text(
-                        text = "Confirmar",
-                        color = Color.White
-                    )
+                        },
+                        modifier = Modifier
+                            .padding(end = 24.dp, bottom = 24.dp)
+                            .offset(y = (-50).dp)
+                            .wrapContentWidth()
+                            .height(40.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = RojoBase
+                        )
+                    ) {
+                        Text(
+                            text = "Cancelar",
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            if (nuevoViajeViewModel.viajeValido()) {
+                                navController.navigate(Routes.HOME)
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(end = 24.dp, bottom = 24.dp)
+                            .offset(y = (-50).dp)
+                            .wrapContentWidth()
+                            .height(40.dp),
+                        enabled = nuevoViajeViewModel.viajeValido(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = RojoBase
+                        )
+                    ) {
+                        Text(
+                            text = "Confirmar",
+                            color = Color.White
+                        )
+                    }
+
+
                 }
 
 
             }
-
-
         }
     }
 }

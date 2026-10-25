@@ -10,4 +10,5 @@ object Routes {
     const val ADMIN = "Administrador"
     const val MENU = "Menu"
     const val VIAJE = "Viaje"
+    const val CONFIGURACION = "Configuración"
 }

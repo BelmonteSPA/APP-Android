@@ -10,6 +10,7 @@ import com.example.belmonteapp.view.HomeScreen
 import com.example.belmonteapp.view.LoginScreen
 import com.example.belmonteapp.view.RegistroScreen
 import com.example.belmonteapp.view.ConductorScreen
+import com.example.belmonteapp.view.ConfiScreen
 import com.example.belmonteapp.view.MenuScreen
 import com.example.belmonteapp.view.ViajeScreen
 
@@ -32,5 +33,6 @@ fun AppNavigation(){
         composable (Routes.ADMIN){ AdmScreen(navController) }
         composable (Routes.MENU){ MenuScreen(navController) }
         composable (Routes.VIAJE){ ViajeScreen(navController) }
+        composable (Routes.CONFIGURACION){ ConfiScreen(navController) }
     }
 }

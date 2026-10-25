@@ -108,7 +108,7 @@ fun MenuScreen(
                         else -> PerfilScreen(navController)
                     }
                 }
-                3 -> PantallaTemporal("Configuración")
+                3 -> ConfiScreen(navController)
             }
         }
     }
