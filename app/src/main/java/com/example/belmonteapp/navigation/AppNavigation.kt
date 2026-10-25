@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import com.example.belmonteapp.view.AsignarConductorScreen
 import com.example.belmonteapp.view.DetalleViajeScreen
 import com.example.belmonteapp.view.ModificarAsignacionScreen
+import com.example.belmonteapp.view.PendientesScreen
 import com.example.belmonteapp.view.ViajeEnCursoScreen
 import com.example.belmonteapp.view.ViajeFinalizadoScreen
 import com.example.belmonteapp.view.ViajesFechaScreen
@@ -76,6 +77,7 @@ fun AppNavigation(){
         ) { entrada ->
             ModificarAsignacionScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
         }
+        composable(Routes.PENDIENTES) { PendientesScreen(navController) }
     }
 
 }
