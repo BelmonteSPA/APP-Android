@@ -69,15 +69,28 @@ import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
 import com.example.belmonteapp.componentes.coloresCampo
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import com.example.belmonteapp.modelo.Tipo
+import android.widget.Toast
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.belmonteapp.util.abrirReclamoSernac
+import com.example.belmonteapp.viewModel.QrViewModel
+import com.example.belmonteapp.viewModel.ViajesViewModel
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
     navController: NavController,
     perfilViewModel: PerfilViewModel = viewModel(),
-    registroViewModel: RegistroViewModel = viewModel()
+    registroViewModel: RegistroViewModel = viewModel(),
+    qrViewModel: QrViewModel = viewModel(),
+    viajesViewModel: ViajesViewModel = viewModel()
 
 
     ) {
@@ -90,6 +103,23 @@ fun PerfilScreen(
     var editando by remember { mutableStateOf(false) }
     // Carga los datos de la cuenta que inició sesión
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
+
+    //Escaner de QR (igual que el ejemplo del profe)
+    val context = LocalContext.current
+    val contenidoQR by qrViewModel.contenidoQR.collectAsStateWithLifecycle()
+    val opcionesQR = remember {
+        GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+            .build()
+    }
+    val scanner = remember(context, opcionesQR) {
+        GmsBarcodeScanning.getClient(context, opcionesQR)
+    }
+    var mostrarDatos by remember { mutableStateOf(false) }
+
+    //Conductor del vehiculo escaneado: se busca por la patente del QR en Room
+    val conductores by viajesViewModel.conductores.collectAsState()
+    val conductorQR = if (contenidoQR.isEmpty()) null else conductores.find { it.patente == qrViewModel.patente() }
 
 
     Column(
@@ -280,6 +310,28 @@ fun PerfilScreen(
                         Icon(
                             imageVector = Icons.Default.Call,
                             contentDescription = "Llamar",
+                            tint = Color.White
+                        )
+                    }
+                    //Escanear el QR del vehiculo
+                    IconButton(
+                        onClick = {
+                            scanner.startScan()
+                                .addOnSuccessListener { barcode ->
+                                    qrViewModel.guardarQR(barcode.rawValue.orEmpty())
+                                    mostrarDatos = true
+                                }
+                                .addOnFailureListener { error ->
+                                    Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        },
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(RojoBase, CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.QrCodeScanner,
+                            contentDescription = "Escanear QR del vehículo",
                             tint = Color.White
                         )
                     }
@@ -577,6 +629,43 @@ fun PerfilScreen(
             }
         }
         Spacer(modifier = Modifier.height(100.dp))//los campos finales se puedan ver completos
+        //Ventana con los datos del vehiculo escaneado
+        if (mostrarDatos) {
+            AlertDialog(
+                onDismissRequest = { mostrarDatos = false },
+                containerColor = Color.White,
+                title = {
+                    Text(
+                        text = if (conductorQR == null) "QR no válido" else "Datos del vehículo",
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                },
+                text = {
+                    if (conductorQR == null) {
+                        Text("Este QR no pertenece a un vehículo de Belmonte.")
+                    } else {
+                        Column {
+                            Text("Conductor: ${conductorQR.nombre}")
+                            Text("Vehículo: ${conductorQR.vehiculo}")
+                            Text("Patente: ${conductorQR.patente}")
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { mostrarDatos = false }) {
+                        Text("Cerrar", color = RojoBase)
+                    }
+                },
+                dismissButton = {
+                    //Solo si el QR es valido se ofrece el reclamo
+                    if (conductorQR != null) {
+                        TextButton(onClick = { abrirReclamoSernac(context) }) {
+                            Text("Reclamo SERNAC", color = RojoBase)
+                        }
+                    }
+                }
+            )
+        }
     }
 }
 
