@@ -18,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.belmonteapp.view.AsignarConductorScreen
 import com.example.belmonteapp.view.DetalleViajeScreen
+import com.example.belmonteapp.view.ModificarAsignacionScreen
 import com.example.belmonteapp.view.ViajeEnCursoScreen
 import com.example.belmonteapp.view.ViajeFinalizadoScreen
 import com.example.belmonteapp.view.ViajesFechaScreen
@@ -68,6 +69,12 @@ fun AppNavigation(){
             arguments = listOf(navArgument("viajeId") { type = NavType.IntType })
         ) { entrada ->
             AsignarConductorScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
+        }
+        composable(
+            route = Routes.MODIFICAR_ASIGNACION,
+            arguments = listOf(navArgument("viajeId") { type = NavType.IntType })
+        ) { entrada ->
+            ModificarAsignacionScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
         }
     }
 
