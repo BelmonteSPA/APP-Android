@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.compose.foundation:foundation")
+    implementation(libs.google.code.scanner)
 
     implementation(libs.androidx.room3.runtime)
     debugImplementation(libs.androidx.ui.tooling)

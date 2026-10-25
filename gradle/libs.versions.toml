@@ -16,6 +16,7 @@ composeMaterial = "1.7.1"
 uiToolingPreview = "1.12.1"
 uiTooling = "1.12.1"
 foundation = "1.12.1"
+googleCodeScanner = "16.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,7 +41,7 @@ androidx-compose-material = { group = "androidx.wear.compose", name = "compose-m
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
-
+google-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "googleCodeScanner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
