@@ -13,6 +13,7 @@ import com.example.belmonteapp.view.ConductorScreen
 import com.example.belmonteapp.view.ConfiScreen
 import com.example.belmonteapp.view.MenuScreen
 import com.example.belmonteapp.view.ViajeScreen
+import com.example.belmonteapp.view.ViajesConductorScreen
 
 @Composable
 
@@ -34,5 +35,7 @@ fun AppNavigation(){
         composable (Routes.MENU){ MenuScreen(navController) }
         composable (Routes.VIAJE){ ViajeScreen(navController) }
         composable (Routes.CONFIGURACION){ ConfiScreen(navController) }
+        composable(Routes.VIAJES_DIA) { ViajesConductorScreen(navController, soloHoy = true) }
+        composable(Routes.VIAJES_ASIGNADOS) { ViajesConductorScreen(navController, soloHoy = false) }
     }
 }

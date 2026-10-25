@@ -165,7 +165,13 @@ fun LoginScreen(
                         val validador = SesionManager.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
 
                         if (validador) {
-                            navController.navigate(Routes.MENU) {
+                            //el conductor entra directo a sus viajes del dia, el resto al menu
+                            val destino = if (SesionManager.cuentaActual?.tipo == Tipo.CONDUCTOR) {
+                                Routes.VIAJES_DIA
+                            } else {
+                                Routes.MENU
+                            }
+                            navController.navigate(destino) {
                                 popUpTo(Routes.HOME) { inclusive = true }
                             }
                         } else {
