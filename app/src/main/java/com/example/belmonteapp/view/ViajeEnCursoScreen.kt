@@ -163,13 +163,16 @@ fun ViajeEnCursoScreen(
                 .padding(padding)
                 .verticalScroll(scroll)
         ) {
-            //Encabezado: estado, cronometro y destino
-            CabeceraRoja(alto = 320.dp) {
+            //Encabezado: volver, estado, cronometro y destino
+            CabeceraRoja(
+                alto = 360.dp,
+                onVolver = { navController.popBackStack() }
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
+                        .padding(start = 24.dp, end = 24.dp, top = 68.dp, bottom = 24.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),

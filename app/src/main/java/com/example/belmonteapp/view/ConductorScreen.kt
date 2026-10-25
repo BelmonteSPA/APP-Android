@@ -71,13 +71,17 @@ import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
 import com.example.belmonteapp.componentes.coloresCampo
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.collectAsState
+import com.example.belmonteapp.componentes.CabeceraRoja
+import com.example.belmonteapp.viewModel.ViajesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConductorScreen(
     navController: NavController,
     perfilViewModel: PerfilViewModel = viewModel(),
-    registroViewModel: RegistroViewModel = viewModel()
+    registroViewModel: RegistroViewModel = viewModel(),
+    viajesViewModel: ViajesViewModel = viewModel()
 
 
 ) {
@@ -89,6 +93,11 @@ fun ConductorScreen(
 
     var editando by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
+    //Datos para el encabezado: nombre de la cuenta y patente del vehiculo
+    val cuenta = SesionManager.cuentaActual
+    val conductores by viajesViewModel.conductores.collectAsState()
+    val conductor = conductores.find { it.id == viajesViewModel.conductorId }
+    val nombreCompleto = if (cuenta == null) "Conductor" else "${cuenta.nombres} ${cuenta.apellidos}"
 
     Column(
         modifier = Modifier
@@ -99,128 +108,50 @@ fun ConductorScreen(
 
 
     ) {
-        //Encabezado
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(
-                    color = RojoBase,
-                    shape = RoundedCornerShape(
-                        bottomStart = 56.dp, bottomEnd = 56.dp
-                    )))
-        {IconButton(
-            onClick = {
-                navController.navigate(Routes.HOME)
-            },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(start = 16.dp, top = 8.dp)
-                .size(44.dp)
-                .background(Color.White.copy(alpha = 0.18f), CircleShape)
+        //Encabezado: foto, nombre completo y patente
+        CabeceraRoja(
+            alto = 300.dp,
+            onVolver = { navController.popBackStack() }
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.White
+            Text(
+                text = "PERFIL",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 4.sp,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 20.dp)
             )
-        }
-            FotoPerfil(
-                fotoUri = fotoUri,
-                onClick = {
-                    launcher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 25.dp, bottom = 60.dp)
-            )// Start = empuja hacia lado derecho
-            //Bottom = empuja hacia arriba
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(top = 25.dp)//agrega expacio extra texto
+                    .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
             ) {
-                Text(
-                    text = "Perfil",
-                    color = Color.White,
-                    fontSize = 20.sp,//tamaño de la fuente
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 4.sp,
-
-                    )
-                Spacer(modifier = Modifier.height(60.dp))
-                Text(
+                FotoPerfil(
+                    fotoUri = fotoUri,
+                    onClick = {
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
                     modifier = Modifier
-                        .statusBarsPadding(),
-                    text = SesionManager.cuentaActual?.nombres ?: "Usuario",
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.End,
                 )
-            } }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .padding(horizontal = 24.dp)
-                .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
-                Text(
-                    text = "Total",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                Text(
-                    text = "$2000",
-                    color = Color.Black,
-                    fontSize = 30.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-                ) {
+                Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(
-                        text = "Distancia"
+                        text = nombreCompleto,
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold
                     )
-                    Text(text = "Horas")
-                    Text(text = "Viajes")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
                     Text(
-                        text = "30km"
+                        text = if (conductor == null) "Conductor" else "Conductor · ${conductor.patente}",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp,
+                        letterSpacing = 1.sp
                     )
-                    Text(text = "14:00")
-                    Text(text = "12   ")
                 }
             }
         }
