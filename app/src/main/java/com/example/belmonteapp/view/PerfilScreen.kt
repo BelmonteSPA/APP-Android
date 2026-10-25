@@ -646,6 +646,7 @@ fun PerfilScreen(
                     } else {
                         Column {
                             Text("Conductor: ${conductorQR.nombre}")
+                            Text("RUT: ${conductorQR.rut}")
                             Text("Vehículo: ${conductorQR.vehiculo}")
                             Text("Patente: ${conductorQR.patente}")
                         }
