@@ -12,15 +12,19 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Class
+import androidx.compose.material.icons.filled.Desk
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.SystemSecurityUpdateGood
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -74,13 +78,99 @@ fun ConfiScreen(
                         .background(Color.White)
                 ) {
                     Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
                         imageVector = Icons.Default.Notifications,
+                        contentDescription = "Notificacion",
+                        tint = Color.White
+                    )
+                    Text(
+                        text = "Notificaciones",
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
+                }
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.Call,
                         contentDescription = "Llamar",
                         tint = Color.White
                     )
-                    Text(text = "Notificaciones")
+                    Text(
+                        text = "Preferencias de Contactos",
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
                 }
                 Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Soporte e Información",
+                    modifier = Modifier.height(50.dp),
+                    fontSize = 25.sp,//tamaño de la fuente
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.Class,
+                        contentDescription = "Llamar",
+                        tint = Color.White
+                    )
+                    Text(
+                        text = "Acerca de la Aplicación",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                    )
+                }
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.SystemSecurityUpdateGood,
+                        contentDescription = "Llamar",
+                        tint = Color.White
+                    )
+                    Text(
+                        text = "Seguridad y Permisos",
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
+                }
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.Class,
+                        contentDescription = "Llamar",
+                        tint = Color.White
+                    )
+                    Text(
+                        text = "Terminos y Condiciones",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                    )
+                }
                 Text(
                     text = "Cuenta",
                     modifier = Modifier.height(50.dp),
@@ -95,11 +185,17 @@ fun ConfiScreen(
                         .background(Color.White)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.SystemSecurityUpdateGood,
-                        contentDescription = "Llamar",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.VpnKey,
+                        contentDescription = "Contraseña",
                         tint = Color.White
                     )
-                    Text(text = "Seguridad y Permisos")
+                    Text(
+                        text = "Cambiar Contraseña",
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
                 }
                 BottomAppBar(
                     modifier = Modifier
@@ -107,11 +203,17 @@ fun ConfiScreen(
                         .background(Color.White)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Class,
-                        contentDescription = "Llamar",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.Report,
+                        contentDescription = "Reporte",
                         tint = Color.White
                     )
-                    Text(text = "Terminos y Condiciones")
+                    Text(
+                        text = "Reportar Problema",
+                        modifier = Modifier
+                            .padding(start = 10.dp)
+                    )
                 }
                 BottomAppBar(
                     modifier = Modifier
@@ -119,12 +221,34 @@ fun ConfiScreen(
                         .background(Color.White)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ExitToApp,
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.Desk,
                         contentDescription = "Llamar",
                         tint = Color.White
                     )
                     Text(
+                        text = "Desactivar Cuenta",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                    )
+                }
+                BottomAppBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 10.dp),
+                        imageVector = Icons.Default.ExitToApp,
+                        contentDescription = "Salida",
+                        tint = Color.White
+                    )
+                    Text(
                         text = "Cerrar Sesión",
+                        modifier = Modifier
+                            .padding(start = 10.dp),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -132,4 +256,5 @@ fun ConfiScreen(
             }
         }
     }
+    Spacer(modifier = Modifier.height(100.dp))
 }
