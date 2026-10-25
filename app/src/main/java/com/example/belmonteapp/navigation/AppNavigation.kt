@@ -17,6 +17,7 @@ import com.example.belmonteapp.view.ViajesConductorScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.belmonteapp.view.DetalleViajeScreen
+import com.example.belmonteapp.view.ViajeEnCursoScreen
 
 @Composable
 
@@ -45,6 +46,12 @@ fun AppNavigation(){
             arguments = listOf(navArgument("viajeId") { type = NavType.IntType })
         ) { entrada ->
             DetalleViajeScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
+        }
+        composable(
+            route = Routes.VIAJE_EN_CURSO,
+            arguments = listOf(navArgument("viajeId") { type = NavType.IntType })
+        ) { entrada ->
+            ViajeEnCursoScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
         }
     }
 }
