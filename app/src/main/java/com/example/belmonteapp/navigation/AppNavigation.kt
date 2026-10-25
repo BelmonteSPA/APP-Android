@@ -14,6 +14,9 @@ import com.example.belmonteapp.view.ConfiScreen
 import com.example.belmonteapp.view.MenuScreen
 import com.example.belmonteapp.view.ViajeScreen
 import com.example.belmonteapp.view.ViajesConductorScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.belmonteapp.view.DetalleViajeScreen
 
 @Composable
 
@@ -37,5 +40,11 @@ fun AppNavigation(){
         composable (Routes.CONFIGURACION){ ConfiScreen(navController) }
         composable(Routes.VIAJES_DIA) { ViajesConductorScreen(navController, soloHoy = true) }
         composable(Routes.VIAJES_ASIGNADOS) { ViajesConductorScreen(navController, soloHoy = false) }
+        composable(
+            route = Routes.DETALLE_VIAJE,
+            arguments = listOf(navArgument("viajeId") { type = NavType.IntType })
+        ) { entrada ->
+            DetalleViajeScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
+        }
     }
 }
