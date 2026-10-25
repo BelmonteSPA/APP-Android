@@ -22,10 +22,10 @@ object DataViajes {
     private val TORRE = Lugar("Torre Costanera, Av. Andrés Bello 2425, Providencia", -33.4173, -70.6064)
 
     //El conductor con id 1 coincide con "conductor@belmonte.cl" de DataP
-    private val juan = Conductor(1, "Juan Pérez", "Hyundai H-1", "KDRT-42")
-    private val pedro = Conductor(102, "Pedro Vidal", "Kia Carnival", "PLZK-07")
-    private val carla = Conductor(103, "Carla Muñoz", "Toyota Hiace", "LRWP-18")
-    private val rodrigo = Conductor(104, "Rodrigo Silva", "Hyundai Staria", "SDGH-33")
+    private val juan = Conductor(1, "Juan Pérez", "Hyundai H-1", "KDRT-42", "11.111.111-1")
+    private val pedro = Conductor(102, "Pedro Vidal", "Kia Carnival", "PLZK-07", "13.456.789-2")
+    private val carla = Conductor(103, "Carla Muñoz", "Toyota Hiace", "LRWP-18", "16.789.012-3")
+    private val rodrigo = Conductor(104, "Rodrigo Silva", "Hyundai Staria", "SDGH-33", "14.567.890-K")
 
     fun conductores(): List<Conductor> {
         return listOf(juan, pedro, carla, rodrigo)
