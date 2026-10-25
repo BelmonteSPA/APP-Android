@@ -81,6 +81,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.OutlinedButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -339,6 +341,27 @@ fun AdmScreen(
                 }
             }
         }
+
+        //Cerrar sesion: borra la cuenta activa y vuelve al login
+        OutlinedButton(
+            onClick = {
+                SesionManager.cerrarSesion()
+                navController.navigate(Routes.LOGIN) {
+                    //borra todo el historial para que "atras" no vuelva al perfil
+                    popUpTo(navController.graph.id) { inclusive = true }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, RojoBase),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = RojoBase)
+        ) {
+            Text(text = "Cerrar sesión", fontWeight = FontWeight.ExtraBold)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
