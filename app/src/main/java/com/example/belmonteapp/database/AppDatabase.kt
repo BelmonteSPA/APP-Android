@@ -13,7 +13,7 @@ import com.example.belmonteapp.modelo.Viajes
 
 @Database(
     entities = [Viajes::class, Conductor::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @ColumnTypeConverters (Converters::class)
@@ -30,8 +30,9 @@ abstract class AppDatabase : RoomDatabase(){
                 val instance = Room.databaseBuilder<AppDatabase>(
                     context.applicationContext,
                     "db_belmonte"
-                ).build()
-
+                )
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                 INSTANCE = instance
 
                 instance
