@@ -4,12 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ejemplo.miapp.NuevoViajeScreen
 import com.example.belmonteapp.view.AdmScreen
 import com.example.belmonteapp.view.HomeScreen
 import com.example.belmonteapp.view.LoginScreen
-import com.example.belmonteapp.view.PerfilScreen
 import com.example.belmonteapp.view.RegistroScreen
-import com.example.belmonteapp.view.NuevoViajeScreen
 import com.example.belmonteapp.view.ConductorScreen
 import com.example.belmonteapp.view.MenuScreen
 

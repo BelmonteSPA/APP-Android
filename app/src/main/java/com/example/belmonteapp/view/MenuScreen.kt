@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.example.belmonteapp.ui.theme.RojoBase
 import android.annotation.SuppressLint
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ejemplo.miapp.NuevoViajeScreen
 import com.example.belmonteapp.modelo.ItemMenu
 import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.viewModel.MenuViewModel

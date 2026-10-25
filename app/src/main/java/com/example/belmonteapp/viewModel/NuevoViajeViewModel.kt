@@ -24,4 +24,7 @@ class NuevoViajeViewModel: ViewModel() {
     fun agregarHora(nuevaHora: String){
         hora = nuevaHora
     }
+    fun crearNuevoViaje(){
+        return //implementar
+    }
 }

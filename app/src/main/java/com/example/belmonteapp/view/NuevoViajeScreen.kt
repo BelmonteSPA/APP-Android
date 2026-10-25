@@ -1,107 +1,149 @@
-package com.example.belmonteapp.view
+package com.ejemplo.miapp
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.FactCheck
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.belmonteapp.viewModel.NuevoViajeViewModel
-import java.time.LocalDate
+import androidx.navigation.NavController
+import com.example.belmonteapp.navigation.Routes
+import com.example.belmonteapp.ui.theme.RojoBase
+import com.example.belmonteapp.viewModel.MenuViewModel
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 @Composable
 fun NuevoViajeScreen(
     navController: NavController,
-    nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
-){
-    Column(
-        modifier = Modifier
-            .background(Color.White)//es el color del fondo
-            .fillMaxWidth()
-            .navigationBarsPadding()
+    menuViewModel: MenuViewModel = viewModel()
+) {
+    var origen by remember { mutableStateOf("") }
+    var destino by remember { mutableStateOf("") }
 
+    // Box permite superponer elementos (como capas)
+    Box(modifier = Modifier.fillMaxSize()) {
 
-    ) {
-        Text(
-            text = "Nuevo Viaje",
-            modifier = Modifier.padding(top = 10.dp)
+        // CAPA 1 (Fondo): El Mapa
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                Configuration.getInstance().userAgentValue = "BelmonteApp/1.0 (tucorreo@gmail.com)"
+
+                MapView(context).apply {
+                    setTileSource(TileSourceFactory.MAPNIK)
+                    setMultiTouchControls(true)
+
+                    // Centrar mapa (Ejemplo: Santiago)
+                    val ubicacionActual = GeoPoint(-33.4489, -70.6693)
+                    controller.setZoom(16.0)
+                    controller.setCenter(ubicacionActual)
+
+                    // Marcador de la ubicación del usuario (ej: auto o usuario)
+                    val marker = Marker(this)
+                    marker.position = ubicacionActual
+                    marker.title = "Tu ubicación"
+                    overlays.add(marker)
+                }
+            }
         )
+
+        // CAPA 2 (Arriba): Tarjeta de ingreso de direcciones estilo Uber
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
+                .height(280.dp)
+                .statusBarsPadding()
+                .padding(25.dp)
+                .align(Alignment.TopCenter), // Lo posiciona arriba en la pantalla
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Origen",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
                 OutlinedTextField(
-                    value = nuevoViajeViewModel.origen,
-                    onValueChange = {
-                        nuevoViajeViewModel.agregarDestino(it)
-                    },
+                    value = origen,
+                    onValueChange = { origen = it },
                     label = {
-                        Text("Ej: calle 1")
+                        Text("Punto de partida")
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
                 )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Destino",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = nuevoViajeViewModel.destino,
-                    onValueChange = {
-                        nuevoViajeViewModel.agregarDestino(it)
-                    },
-                    label = {
-                        Text("Ej: calle 1")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(15.dp))
 
+                OutlinedTextField(
+                    value = destino,
+                    onValueChange = { destino = it },
+                    label = {
+                        Text("¿A dónde vas?")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .fillMaxWidth()
+                .padding(start = 300.dp, end = 30.dp),
+            horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
+        ) {
+            IconButton(
+                onClick = {
+                    navController.navigate(Routes.HOME)
+                },
+                modifier = Modifier
+                    .padding(end = 24.dp, bottom = 24.dp)
+                    .offset(y = (-150).dp)
+                    .size(44.dp)
+                    .background(Color.White, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Cancel,
+                    contentDescription = "Cancelar",
+                    tint = RojoBase
+                )
+            }
+            IconButton(
+                onClick = {
+                    navController.navigate(Routes.HOME)
+                },
+                modifier = Modifier
+                    .padding(end = 24.dp, bottom = 24.dp)
+                    .offset(y = (-150).dp)
+                    .size(44.dp)
+                    .background(RojoBase, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Confirmar",
+                    tint = Color.White
+                )
+            }
+
+        }
+
 
     }
 }
