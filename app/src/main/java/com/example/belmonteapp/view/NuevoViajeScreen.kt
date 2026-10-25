@@ -1,14 +1,10 @@
 package com.ejemplo.miapp
 
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.FactCheck
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Check
+import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.events.MapEventsReceiver
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.belmonteapp.modelo.EstadoSeleccion
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.MenuViewModel
@@ -34,8 +31,7 @@ fun NuevoViajeScreen(
     menuViewModel: MenuViewModel = viewModel(),
     nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
 ) {
-    var origen by remember { mutableStateOf(false) }
-    var destino by remember { mutableStateOf(false) }
+
 
     // Box permite superponer elementos (como capas)
     Box(modifier = Modifier.fillMaxSize()) {
@@ -60,6 +56,42 @@ fun NuevoViajeScreen(
                     marker.position = ubicacionActual
                     marker.title = "Tu ubicación"
                     overlays.add(marker)
+                    val eventosMapa = MapEventsOverlay(
+                        object : MapEventsReceiver {
+
+                            override fun singleTapConfirmedHelper(
+                                p: GeoPoint?
+                            ): Boolean {
+
+                                if (p != null) {
+
+                                    when (nuevoViajeViewModel.estadoSeleccion) {
+
+                                        EstadoSeleccion.SELECCIONAR_ORIGEN -> {
+                                            println("CLICK ORIGEN")
+
+                                            nuevoViajeViewModel.establecerOrigen(context,p)
+                                        }
+                                        EstadoSeleccion.SELECCIONANDO_DESTINO -> {
+                                            nuevoViajeViewModel.establecerDestino(context,p)
+                                        }
+                                        EstadoSeleccion.LISTO -> {
+                                        }
+                                    }
+                                }
+
+                                return true
+                            }
+
+                            override fun longPressHelper(
+                                p: GeoPoint?
+                            ): Boolean {
+                                return false
+                            }
+                        }
+                    )
+
+                    overlays.add(eventosMapa)
                 }
             }
         )
@@ -68,7 +100,7 @@ fun NuevoViajeScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(280.dp)
+                .height(220.dp)
                 .statusBarsPadding()
                 .padding(25.dp)
                 .align(Alignment.TopCenter), // Lo posiciona arriba en la pantalla
@@ -80,72 +112,80 @@ fun NuevoViajeScreen(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
-                    value = nuevoViajeViewModel.origen,
-                    onValueChange = { nuevoViajeViewModel.agregarOrigen(it)},
-                    label = {
-                        Text("Punto de partida")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
+                when (nuevoViajeViewModel.estadoSeleccion) {
 
-                OutlinedTextField(
-                    value = nuevoViajeViewModel.destino,
-                    onValueChange = { nuevoViajeViewModel.agregarDestino(it) },
-                    label = {
-                        Text("¿A dónde vas?")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                    EstadoSeleccion.SELECCIONAR_ORIGEN -> {
+                        Text("📍 Selecciona tu punto de origen")
+                        Text("Toca cualquier lugar del mapa")
+                    }
+
+                    EstadoSeleccion.SELECCIONANDO_DESTINO -> {
+                        Text("📍 ${nuevoViajeViewModel.direccionOrigen}")
+                        Text("🏁 Selecciona tu punto de destino")
+                    }
+
+                    EstadoSeleccion.LISTO -> {
+
+                        Text("📍 ${nuevoViajeViewModel.direccionOrigen}")
+                        Text("🏁 ${nuevoViajeViewModel.direccionDestino}")
+                    }
+
+
+                }
             }
-        }
-        Row(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .fillMaxWidth()
-                .padding(start = 300.dp, end = 30.dp),
-            horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-        ) {
-            IconButton(
-                onClick = {
-                    navController.navigate(Routes.HOME)
-                },
+            Row(
                 modifier = Modifier
-                    .padding(end = 24.dp, bottom = 24.dp)
-                    .offset(y = (-150).dp)
-                    .size(44.dp)
-                    .background(Color.White, CircleShape)
+                    .fillMaxWidth()
+                    .padding(start = 300.dp, end = 30.dp),
+                horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
             ) {
-                Icon(
-                    imageVector = Icons.Default.Cancel,
-                    contentDescription = "Cancelar",
-                    tint = RojoBase
-                )
+                Button(
+                    onClick = {
+                        navController.navigate(Routes.HOME)
+
+
+                    },
+                    modifier = Modifier
+                        .padding(end = 24.dp, bottom = 24.dp)
+                        .offset(y = (-50).dp)
+                        .wrapContentWidth()
+                        .height(40.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = RojoBase
+                    )
+                ){
+                    Text(
+                        text = "Cancelar",
+                        color = Color.White
+                    )
+                }
+                Button(
+                    onClick = {
+                        navController.navigate(Routes.HOME)
+
+
+                    },
+                    modifier = Modifier
+                        .padding(end = 24.dp, bottom = 24.dp)
+                        .offset(y = (-50).dp)
+                        .wrapContentWidth()
+                        .height(40.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = RojoBase
+                    )
+                ){
+                    Text(
+                        text = "Confirmar",
+                        color = Color.White
+                    )
+                }
+
+
             }
-            IconButton(
-                onClick = {
-                    navController.navigate(Routes.HOME)
-                },
-                modifier = Modifier
-                    .padding(end = 24.dp, bottom = 24.dp)
-                    .offset(y = (-150).dp)
-                    .size(44.dp)
-                    .background(RojoBase, CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Confirmar",
-                    tint = Color.White
-                )
-            }
+
 
         }
-
-
     }
 }
