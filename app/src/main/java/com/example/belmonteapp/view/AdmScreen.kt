@@ -73,6 +73,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.collectAsState
 import com.example.belmonteapp.componentes.CabeceraRoja
 import com.example.belmonteapp.viewModel.ViajesViewModel
+import com.example.belmonteapp.componentes.TarjetaBlanca
+import com.example.belmonteapp.modelo.EstadoViaje
+import com.example.belmonteapp.ui.theme.GrisOscuro
+import com.example.belmonteapp.util.Fechas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +99,12 @@ fun AdmScreen(
     //Nombre de la cuenta con sesion iniciada
     val cuenta = SesionManager.cuentaActual
     val nombreCompleto = if (cuenta == null) "Administrador" else "${cuenta.nombres} ${cuenta.apellidos}"
+    //Resumen de todos los viajes (datos reales de Room)
+    val viajes by viajesViewModel.viajes.collectAsState()
+    val conductores by viajesViewModel.conductores.collectAsState()
+    val viajesHoy = viajes.count { it.fecha == Fechas.hoy() }
+    val pendientes = viajes.count { it.estado == EstadoViaje.PENDIENTE }
+    val enCurso = viajes.count { it.estado == EstadoViaje.EN_CURSO }
 
     Column(
         modifier = Modifier
@@ -151,63 +161,25 @@ fun AdmScreen(
                 }
             }
         }
-        Card(
+        //Resumen de viajes (se monta sobre el encabezado)
+        TarjetaBlanca(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
                 .padding(horizontal = 24.dp)
-                .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                .offset(y = (-44).dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
+            Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Total",
-                    color = Color.Black,
-                    fontSize = 20.sp,
+                    text = "RESUMEN",
+                    fontSize = 12.sp,
                     letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                    color = GrisOscuro
                 )
-                Text(
-                    text = "$2000",
-                    color = Color.Black,
-                    fontSize = 30.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-                ) {
-                    Text(
-                        text = "Distancia"
-                    )
-                    Text(text = "Horas")
-                    Text(text = "Viajes")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "30km"
-                    )
-                    Text(text = "14:00")
-                    Text(text = "12   ")
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    DatoAdmin(viajesHoy.toString(), "Viajes hoy", Modifier.weight(1f))
+                    DatoAdmin(pendientes.toString(), "Pendientes", Modifier.weight(1f), resaltado = true)
+                    DatoAdmin(enCurso.toString(), "En curso", Modifier.weight(1f))
                 }
             }
         }
@@ -563,5 +535,32 @@ fun AdmScreen(
 
             }
         }
+    }
+}
+
+
+//Un dato del resumen: numero grande y texto abajo
+@Composable
+private fun DatoAdmin(
+    valor: String,
+    texto: String,
+    modifier: Modifier = Modifier,
+    resaltado: Boolean = false
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = valor,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = if (resaltado) RojoBase else Color.Black
+        )
+        Text(
+            text = texto,
+            fontSize = 13.sp,
+            color = GrisOscuro
+        )
     }
 }
