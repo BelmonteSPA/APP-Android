@@ -93,7 +93,8 @@ fun ConductorScreen(
     val cuenta = SesionManager.cuentaActual
     val conductores by viajesViewModel.conductores.collectAsState()
     val conductor = conductores.find { it.id == viajesViewModel.conductorId }
-    val nombreCompleto = if (cuenta == null) "Conductor" else "${cuenta.nombres} ${cuenta.apellidos}"
+    val nombreCompleto =
+        if (cuenta == null) "Conductor" else "${cuenta.nombres} ${cuenta.apellidos}"
     //Resumen con datos reales de Room (solo los viajes de este conductor)
     val viajes by viajesViewModel.viajes.collectAsState()
     val misViajes = viajes.filter { it.conductorId == viajesViewModel.conductorId }
@@ -102,7 +103,8 @@ fun ConductorScreen(
 
     //Minutos sumados de todos los viajes finalizados
     val minutos = finalizados.sumOf { (it.terminoMillis - it.inicioMillis) / 60000 }
-    val tiempoConducido = if (minutos < 60) "$minutos min" else "${minutos / 60} h ${minutos % 60} min"
+    val tiempoConducido =
+        if (minutos < 60) "$minutos min" else "${minutos / 60} h ${minutos % 60} min"
 
     val opciones = listOf(
         OpcionBarra("Hoy", Icons.Default.Today),
@@ -122,6 +124,7 @@ fun ConductorScreen(
                         0 -> navController.navigate(Routes.VIAJES_DIA) {
                             popUpTo(Routes.VIAJES_DIA) { inclusive = true }
                         }
+
                         1 -> navController.navigate(Routes.VIAJES_ASIGNADOS)
                     }
                 }
@@ -135,255 +138,278 @@ fun ConductorScreen(
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
-        //Encabezado: foto, nombre completo y patente
-        CabeceraRoja(
-            alto = 300.dp
-        ) {
-            Text(
-                text = "PERFIL",
-                color = Color.White,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 4.sp,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .statusBarsPadding()
-                    .padding(top = 20.dp)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
+            //Encabezado: foto, nombre completo y patente
+            CabeceraRoja(
+                alto = 300.dp
             ) {
-                FotoPerfil(
-                    fotoUri = fotoUri,
-                    onClick = {
-                        launcher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    },
-                    modifier = Modifier
-                )
-                Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(
-                        text = nombreCompleto,
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    Text(
-                        text = if (conductor == null) "Conductor" else "Conductor · ${conductor.patente}",
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontSize = 14.sp,
-                        letterSpacing = 1.sp
-                    )
-                }
-            }
-        }
-        }
-
-        //Resumen del conductor (se monta sobre el encabezado)
-        TarjetaBlanca(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .offset(y = (-44).dp)
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "RESUMEN",
-                    fontSize = 12.sp,
+                    text = "PERFIL",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 4.sp,
-                    color = GrisOscuro
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    DatoResumen(
-                        valor = viajesHoy.toString(),
-                        texto = "Viajes hoy",
-                        modifier = Modifier.weight(1f)
-                    )
-                    DatoResumen(
-                        valor = finalizados.size.toString(),
-                        texto = "Finalizados",
-                        modifier = Modifier.weight(1f)
-                    )
-                    DatoResumen(
-                        valor = tiempoConducido,
-                        texto = "Conducido",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-        //Vehiculo del conductor (desde la tabla conductor de Room)
-        TarjetaBlanca(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .offset(y = (-30).dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                //Icono del auto en un cuadro rojo claro
-                Box(
                     modifier = Modifier
-                        .size(52.dp)
-                        .background(RojoBase.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.DirectionsCar,
-                        contentDescription = "Vehículo",
-                        tint = RojoBase
-                    )
-                }
-                Column(modifier = Modifier.padding(start = 16.dp)) {
-                    Text(
-                        text = "MI VEHÍCULO",
-                        fontSize = 12.sp,
-                        letterSpacing = 4.sp,
-                        color = GrisOscuro
-                    )
-                    Text(
-                        text = conductor?.vehiculo ?: "Sin vehículo asignado",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    if (conductor != null) {
-                        Text(
-                            text = "Patente ${conductor.patente}",
-                            fontSize = 14.sp,
-                            color = GrisOscuro
-                        )
-                    }
-                }
-            }
-        }
-        //Mis datos: se muestran como texto y al pulsar "Editar" se abren los campos
-        TarjetaBlanca(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .offset(y = (-16).dp)
-        ) {
-            Column(modifier = Modifier.padding(24.dp)) {
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 20.dp)
+                )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
                 ) {
-                    Text(
-                        text = "MIS DATOS",
-                        fontSize = 12.sp,
-                        letterSpacing = 4.sp,
-                        color = GrisOscuro
-                    )
-                    TextButton(
+                    FotoPerfil(
+                        fotoUri = fotoUri,
                         onClick = {
-                            if (editando) registroViewModel.cancelarEdicion()
-                            editando = !editando
-                        }
-                    ) {
-                        Text(
-                            text = if (editando) "Cancelar" else "Editar",
-                            color = RojoBase,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-                }
-
-                if (!editando) {
-                    //Solo lectura
-                    FilaDato("Correo", registroViewModel.mail)
-                    FilaDato("Teléfono", registroViewModel.telefono)
-                    FilaDato("RUT", registroViewModel.rut)
-                    FilaDato("Región", registroViewModel.region)
-                    FilaDato("Comuna", registroViewModel.comuna)
-                    FilaDato("Dirección", registroViewModel.direccion)
-                } else {
-                    //Edicion
-                    CampoPerfil("Nombres", registroViewModel.nombres) { registroViewModel.cambiarNombres(it) }
-                    CampoPerfil("Apellidos", registroViewModel.apellidos) { registroViewModel.cambiarApellidos(it) }
-                    CampoPerfil("RUT", registroViewModel.rut) { registroViewModel.cambiarRut(it) }
-                    CampoPerfil("Correo", registroViewModel.mail) { registroViewModel.cambiarCorreo(it) }
-                    CampoPerfil("Teléfono", registroViewModel.telefono) { registroViewModel.cambiarTelefono(it) }
-                    SelectorDesplegable(
-                        label = "Región",
-                        opciones = registroViewModel.regiones,
-                        seleccion = registroViewModel.region,
-                        onSeleccion = { registroViewModel.cambiarRegion(it) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = coloresCampo()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    SelectorDesplegable(
-                        label = "Comuna",
-                        opciones = registroViewModel.comunas,
-                        seleccion = registroViewModel.comuna,
-                        onSeleccion = { registroViewModel.cambiarComuna(it) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = registroViewModel.region.isNotEmpty(),
-                        colors = coloresCampo()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CampoPerfil("Dirección", registroViewModel.direccion) { registroViewModel.cambiarDireccion(it) }
-                    CampoPerfil("Contraseña", registroViewModel.pass, esPassword = true) { registroViewModel.cambiarPass(it) }
-
-                    if (registroViewModel.errorPerfil.isNotEmpty()) {
-                        Text(
-                            text = registroViewModel.errorPerfil,
-                            color = Color.Red,
-                            fontSize = 13.sp
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            //guardarCambios valida y guarda todos los campos en la sesion
-                            if (registroViewModel.guardarCambios()) editando = false
+                            launcher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
                         },
                         modifier = Modifier
-                            .padding(top = 12.dp)
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = RojoBase)
-                    ) {
+                    )
+                    Column(modifier = Modifier.padding(start = 16.dp)) {
                         Text(
-                            text = "Guardar",
+                            text = nombreCompleto,
                             color = Color.White,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold
+                        )
+                        Text(
+                            text = if (conductor == null) "Conductor" else "Conductor · ${conductor.patente}",
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            letterSpacing = 1.sp
                         )
                     }
                 }
             }
-        }
 
-        //Cerrar sesion: borra la cuenta activa y vuelve al login
-        OutlinedButton(
-            onClick = {
-                SesionManager.cerrarSesion()
-                navController.navigate(Routes.LOGIN) {
-                    //borra todo el historial para que "atras" no vuelva al perfil
-                    popUpTo(navController.graph.id) { inclusive = true }
+
+            //Resumen del conductor (se monta sobre el encabezado)
+            TarjetaBlanca(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .offset(y = (-44).dp)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        text = "RESUMEN",
+                        fontSize = 12.sp,
+                        letterSpacing = 4.sp,
+                        color = GrisOscuro
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        DatoResumen(
+                            valor = viajesHoy.toString(),
+                            texto = "Viajes hoy",
+                            modifier = Modifier.weight(1f)
+                        )
+                        DatoResumen(
+                            valor = finalizados.size.toString(),
+                            texto = "Finalizados",
+                            modifier = Modifier.weight(1f)
+                        )
+                        DatoResumen(
+                            valor = tiempoConducido,
+                            texto = "Conducido",
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .height(52.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, RojoBase),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = RojoBase)
-        ) {
-            Text(text = "Cerrar sesión", fontWeight = FontWeight.ExtraBold)
+            }
+            //Vehiculo del conductor (desde la tabla conductor de Room)
+            TarjetaBlanca(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .offset(y = (-30).dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    //Icono del auto en un cuadro rojo claro
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .background(RojoBase.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = "Vehículo",
+                            tint = RojoBase
+                        )
+                    }
+                    Column(modifier = Modifier.padding(start = 16.dp)) {
+                        Text(
+                            text = "MI VEHÍCULO",
+                            fontSize = 12.sp,
+                            letterSpacing = 4.sp,
+                            color = GrisOscuro
+                        )
+                        Text(
+                            text = conductor?.vehiculo ?: "Sin vehículo asignado",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                        if (conductor != null) {
+                            Text(
+                                text = "Patente ${conductor.patente}",
+                                fontSize = 14.sp,
+                                color = GrisOscuro
+                            )
+                        }
+                    }
+                }
+            }
+            //Mis datos: se muestran como texto y al pulsar "Editar" se abren los campos
+            TarjetaBlanca(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .offset(y = (-16).dp)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "MIS DATOS",
+                            fontSize = 12.sp,
+                            letterSpacing = 4.sp,
+                            color = GrisOscuro
+                        )
+                        TextButton(
+                            onClick = {
+                                if (editando) registroViewModel.cancelarEdicion()
+                                editando = !editando
+                            }
+                        ) {
+                            Text(
+                                text = if (editando) "Cancelar" else "Editar",
+                                color = RojoBase,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+
+                    if (!editando) {
+                        //Solo lectura
+                        FilaDato("Correo", registroViewModel.mail)
+                        FilaDato("Teléfono", registroViewModel.telefono)
+                        FilaDato("RUT", registroViewModel.rut)
+                        FilaDato("Región", registroViewModel.region)
+                        FilaDato("Comuna", registroViewModel.comuna)
+                        FilaDato("Dirección", registroViewModel.direccion)
+                    } else {
+                        //Edicion
+                        CampoPerfil(
+                            "Nombres",
+                            registroViewModel.nombres
+                        ) { registroViewModel.cambiarNombres(it) }
+                        CampoPerfil(
+                            "Apellidos",
+                            registroViewModel.apellidos
+                        ) { registroViewModel.cambiarApellidos(it) }
+                        CampoPerfil(
+                            "RUT",
+                            registroViewModel.rut
+                        ) { registroViewModel.cambiarRut(it) }
+                        CampoPerfil(
+                            "Correo",
+                            registroViewModel.mail
+                        ) { registroViewModel.cambiarCorreo(it) }
+                        CampoPerfil(
+                            "Teléfono",
+                            registroViewModel.telefono
+                        ) { registroViewModel.cambiarTelefono(it) }
+                        SelectorDesplegable(
+                            label = "Región",
+                            opciones = registroViewModel.regiones,
+                            seleccion = registroViewModel.region,
+                            onSeleccion = { registroViewModel.cambiarRegion(it) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = coloresCampo()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SelectorDesplegable(
+                            label = "Comuna",
+                            opciones = registroViewModel.comunas,
+                            seleccion = registroViewModel.comuna,
+                            onSeleccion = { registroViewModel.cambiarComuna(it) },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = registroViewModel.region.isNotEmpty(),
+                            colors = coloresCampo()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        CampoPerfil(
+                            "Dirección",
+                            registroViewModel.direccion
+                        ) { registroViewModel.cambiarDireccion(it) }
+                        CampoPerfil(
+                            "Contraseña",
+                            registroViewModel.pass,
+                            esPassword = true
+                        ) { registroViewModel.cambiarPass(it) }
+
+                        if (registroViewModel.errorPerfil.isNotEmpty()) {
+                            Text(
+                                text = registroViewModel.errorPerfil,
+                                color = Color.Red,
+                                fontSize = 13.sp
+                            )
+                        }
+                        Button(
+                            onClick = {
+                                //guardarCambios valida y guarda todos los campos en la sesion
+                                if (registroViewModel.guardarCambios()) editando = false
+                            },
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = RojoBase)
+                        ) {
+                            Text(
+                                text = "Guardar",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
+                }
+            }
+
+            //Cerrar sesion: borra la cuenta activa y vuelve al login
+            OutlinedButton(
+                onClick = {
+                    SesionManager.cerrarSesion()
+                    navController.navigate(Routes.LOGIN) {
+                        //borra todo el historial para que "atras" no vuelva al perfil
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, RojoBase),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = RojoBase)
+            ) {
+                Text(text = "Cerrar sesión", fontWeight = FontWeight.ExtraBold)
+            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 //Un dato del resumen: valor grande y texto abajo
