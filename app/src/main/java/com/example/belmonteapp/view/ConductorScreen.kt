@@ -56,6 +56,11 @@ import com.example.belmonteapp.componentes.TarjetaBlanca
 import com.example.belmonteapp.modelo.EstadoViaje
 import com.example.belmonteapp.ui.theme.GrisOscuro
 import com.example.belmonteapp.util.Fechas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material3.Icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -181,12 +186,60 @@ fun ConductorScreen(
                 }
             }
         }
+        //Vehiculo del conductor (desde la tabla conductor de Room)
+        TarjetaBlanca(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .offset(y = (-30).dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                //Icono del auto en un cuadro rojo claro
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .background(RojoBase.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DirectionsCar,
+                        contentDescription = "Vehículo",
+                        tint = RojoBase
+                    )
+                }
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                    Text(
+                        text = "MI VEHÍCULO",
+                        fontSize = 12.sp,
+                        letterSpacing = 4.sp,
+                        color = GrisOscuro
+                    )
+                    Text(
+                        text = conductor?.vehiculo ?: "Sin vehículo asignado",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    if (conductor != null) {
+                        Text(
+                            text = "Patente ${conductor.patente}",
+                            fontSize = 14.sp,
+                            color = GrisOscuro
+                        )
+                    }
+                }
+            }
+        }
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1210.dp)//altura de la card
                 .padding(horizontal = 24.dp)
-                .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
+                .offset(y = (-16).dp) // sube la segunda tarjeta para juntarla a la primera
                 .shadow(16.dp, RoundedCornerShape(28.dp)),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
