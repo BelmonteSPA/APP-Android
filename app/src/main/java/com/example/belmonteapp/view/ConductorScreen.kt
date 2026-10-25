@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -64,6 +63,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.OutlinedButton
 import com.example.belmonteapp.navigation.Routes
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material3.Scaffold
+import com.example.belmonteapp.componentes.BarraInferior
+import com.example.belmonteapp.componentes.OpcionBarra
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,19 +104,40 @@ fun ConductorScreen(
     val minutos = finalizados.sumOf { (it.terminoMillis - it.inicioMillis) / 60000 }
     val tiempoConducido = if (minutos < 60) "$minutos min" else "${minutos / 60} h ${minutos % 60} min"
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)//es el color del fondo
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())//activa la barra de desplazamiento
+    val opciones = listOf(
+        OpcionBarra("Hoy", Icons.Default.Today),
+        OpcionBarra("Asignados", Icons.Default.CheckCircle),
+        OpcionBarra("Perfil", Icons.Default.Person)
+    )
 
-
-    ) {
+    Scaffold(
+        containerColor = Color.White,
+        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+        bottomBar = {
+            BarraInferior(
+                opciones = opciones,
+                seleccionada = 2,
+                onSeleccion = { indice ->
+                    when (indice) {
+                        0 -> navController.navigate(Routes.VIAJES_DIA) {
+                            popUpTo(Routes.VIAJES_DIA) { inclusive = true }
+                        }
+                        1 -> navController.navigate(Routes.VIAJES_ASIGNADOS)
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(Color.White)
+                .verticalScroll(rememberScrollState())
+        ) {
         //Encabezado: foto, nombre completo y patente
         CabeceraRoja(
-            alto = 300.dp,
-            onVolver = { navController.popBackStack() }
+            alto = 300.dp
         ) {
             Text(
                 text = "PERFIL",
@@ -153,6 +180,7 @@ fun ConductorScreen(
                     )
                 }
             }
+        }
         }
 
         //Resumen del conductor (se monta sobre el encabezado)
