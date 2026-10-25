@@ -25,7 +25,7 @@ data class Viajes (
     val pasajeroRut: String,
     val conductorId : Int? = null, //null mientras el viaje esta pendiente
     val conductorNombre : String = "",
-    val conductorRut: String,
+    val conductorRut: String = "",
     val estado : EstadoViaje = EstadoViaje.PENDIENTE,
     val inicioMillis : Long = 0, //momento en que el conductor inicia el viaje
     val terminoMillis : Long = 0 //momento en que finaliza el viaje
