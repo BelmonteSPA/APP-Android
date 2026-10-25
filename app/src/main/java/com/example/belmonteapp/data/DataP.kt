@@ -11,12 +11,26 @@ class DataP{
         val cuentas = listOf(
             Cuenta(
                 0, "David Patricio", "Hernandez Valenzuela", "12.345.678-9",
-                Usuario(0, "pasajero@belmonte.cl", "123"), Tipo.PASAJERO
+                Usuario(0, "pasajero@belmonte.cl", "123"), Tipo.PASAJERO,
+                region = "Región Metropolitana",
+                comuna = "Providencia",
+                direccion = "Av. Providencia 1234",
+                telefono = "+56 9 1234 5678"
             ),
             Cuenta(1, "Juan", "Pérez", "11.111.111-1",
-                Usuario(1, "conductor@belmonte.cl", "123"), Tipo.CONDUCTOR),
+                Usuario(1, "conductor@belmonte.cl", "123"), Tipo.CONDUCTOR,
+                region = "Región Metropolitana",
+                comuna = "Maipú",
+                direccion = "Av. Pajaritos 2450",
+                telefono = "+56 9 8765 4321"
+            ),
             Cuenta(2, "Ana", "Soto", "22.222.222-2",
-                Usuario(2, "admin@belmonte.cl", "123"), Tipo.ADMINISTRADOR)
+                Usuario(2, "admin@belmonte.cl", "123"), Tipo.ADMINISTRADOR,
+                region = "Región Metropolitana",
+                comuna = "Las Condes",
+                direccion = "Av. Apoquindo 4500",
+                telefono = "+56 9 5555 0000"
+            )
         )
     }
     object CodigosTrabajador {
