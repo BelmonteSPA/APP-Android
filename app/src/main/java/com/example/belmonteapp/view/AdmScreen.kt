@@ -70,13 +70,17 @@ import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
 import com.example.belmonteapp.componentes.coloresCampo
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.collectAsState
+import com.example.belmonteapp.componentes.CabeceraRoja
+import com.example.belmonteapp.viewModel.ViajesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdmScreen(
     navController: NavController,
     perfilViewModel: PerfilViewModel = viewModel(),
-    registroViewModel: RegistroViewModel = viewModel()
+    registroViewModel: RegistroViewModel = viewModel(),
+    viajesViewModel: ViajesViewModel = viewModel()
 
 
 ) {
@@ -88,6 +92,9 @@ fun AdmScreen(
 
     var editando by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
+    //Nombre de la cuenta con sesion iniciada
+    val cuenta = SesionManager.cuentaActual
+    val nombreCompleto = if (cuenta == null) "Administrador" else "${cuenta.nombres} ${cuenta.apellidos}"
 
     Column(
         modifier = Modifier
@@ -98,71 +105,52 @@ fun AdmScreen(
 
 
     ) {
-        //Encabezado
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(
-                    color = RojoBase,
-                    shape = RoundedCornerShape(
-                        bottomStart = 56.dp, bottomEnd = 56.dp
-                    )))
-        {IconButton(
-            onClick = {
-                navController.navigate(Routes.HOME)
-            },
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(start = 16.dp, top = 8.dp)
-                .size(44.dp)
-                .background(Color.White.copy(alpha = 0.18f), CircleShape)
+        //Encabezado: foto, nombre completo y rol
+        CabeceraRoja(
+            alto = 300.dp,
+            onVolver = { navController.popBackStack() }
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Volver",
-                tint = Color.White
+            Text(
+                text = "PERFIL",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 4.sp,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 20.dp)
             )
-        }
-            FotoPerfil(
-                fotoUri = fotoUri,
-                onClick = {
-                    launcher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 25.dp, bottom = 60.dp)
-            )// Start = empuja hacia lado derecho
-            //Bottom = empuja hacia arriba
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(top = 25.dp)//agrega expacio extra texto
+                    .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
             ) {
-                Text(
-                    text = "Perfil",
-                    color = Color.White,
-                    fontSize = 20.sp,//tamaño de la fuente
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 4.sp,
-
-                    )
-                Spacer(modifier = Modifier.height(60.dp))
-                Text(
-                    modifier = Modifier
-                        .statusBarsPadding(),
-                    text = SesionManager.cuentaActual?.nombres ?: "Usuario",
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.End,
+                FotoPerfil(
+                    fotoUri = fotoUri,
+                    onClick = {
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
                 )
-            } }
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                    Text(
+                        text = nombreCompleto,
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = "Administrador · Belmonte SpA",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
         Card(
             modifier = Modifier
                 .fillMaxWidth()
