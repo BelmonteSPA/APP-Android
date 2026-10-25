@@ -7,10 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import com.example.belmonteapp.data.SesionManager
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,29 +16,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,10 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -64,16 +45,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.belmonteapp.viewModel.PerfilViewModel
 import androidx.navigation.NavController
-import coil3.compose.AsyncImage
 import com.example.belmonteapp.componentes.SelectorDesplegable
-import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.RegistroViewModel
 import com.example.belmonteapp.componentes.coloresCampo
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.collectAsState
 import com.example.belmonteapp.componentes.CabeceraRoja
 import com.example.belmonteapp.viewModel.ViajesViewModel
+import com.example.belmonteapp.componentes.TarjetaBlanca
+import com.example.belmonteapp.modelo.EstadoViaje
+import com.example.belmonteapp.ui.theme.GrisOscuro
+import com.example.belmonteapp.util.Fechas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +80,15 @@ fun ConductorScreen(
     val conductores by viajesViewModel.conductores.collectAsState()
     val conductor = conductores.find { it.id == viajesViewModel.conductorId }
     val nombreCompleto = if (cuenta == null) "Conductor" else "${cuenta.nombres} ${cuenta.apellidos}"
+    //Resumen con datos reales de Room (solo los viajes de este conductor)
+    val viajes by viajesViewModel.viajes.collectAsState()
+    val misViajes = viajes.filter { it.conductorId == viajesViewModel.conductorId }
+    val viajesHoy = misViajes.count { it.fecha == Fechas.hoy() }
+    val finalizados = misViajes.filter { it.estado == EstadoViaje.FINALIZADO }
+
+    //Minutos sumados de todos los viajes finalizados
+    val minutos = finalizados.sumOf { (it.terminoMillis - it.inicioMillis) / 60000 }
+    val tiempoConducido = if (minutos < 60) "$minutos min" else "${minutos / 60} h ${minutos % 60} min"
 
     Column(
         modifier = Modifier
@@ -156,92 +147,38 @@ fun ConductorScreen(
             }
         }
 
-        Card(
+        //Resumen del conductor (se monta sobre el encabezado)
+        TarjetaBlanca(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
                 .padding(horizontal = 24.dp)
-                .offset(y = (-35).dp) // sube la segunda tarjeta para juntarla a la primera
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                .offset(y = (-44).dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
+            Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "Conductor",
-                    color = Color.Black,
-                    fontSize = 18.sp,
+                    text = "RESUMEN",
+                    fontSize = 12.sp,
                     letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
+                    color = GrisOscuro
                 )
-                Text(
-                    text = "Nombre Conductor",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-                ) {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = "Llamar",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Chat,
-                            contentDescription = "Mensaje",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Navigation,
-                            contentDescription = "Navigation",
-                            tint = Color.White
-                        )
-                    }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    DatoResumen(
+                        valor = viajesHoy.toString(),
+                        texto = "Viajes hoy",
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatoResumen(
+                        valor = finalizados.size.toString(),
+                        texto = "Finalizados",
+                        modifier = Modifier.weight(1f)
+                    )
+                    DatoResumen(
+                        valor = tiempoConducido,
+                        texto = "Conducido",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-
             }
         }
         Card(
@@ -507,5 +444,28 @@ fun ConductorScreen(
 
             }
         }
+    }
+}
+//Un dato del resumen: valor grande y texto abajo
+@Composable
+private fun DatoResumen(
+    valor: String,
+    texto: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = valor,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Text(
+            text = texto,
+            fontSize = 13.sp,
+            color = GrisOscuro
+        )
     }
 }
