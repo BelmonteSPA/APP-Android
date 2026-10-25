@@ -165,11 +165,11 @@ fun LoginScreen(
                         val validador = SesionManager.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
 
                         if (validador) {
-                            //el conductor entra directo a sus viajes del dia, el resto al menu
-                            val destino = if (SesionManager.cuentaActual?.tipo == Tipo.CONDUCTOR) {
-                                Routes.VIAJES_DIA
-                            } else {
-                                Routes.MENU
+                            //cada rol entra a su pantalla principal
+                            val destino = when (SesionManager.cuentaActual?.tipo) {
+                                Tipo.CONDUCTOR -> Routes.VIAJES_DIA
+                                Tipo.ADMINISTRADOR -> Routes.VIAJES_FECHA
+                                else -> Routes.MENU
                             }
                             navController.navigate(destino) {
                                 popUpTo(Routes.HOME) { inclusive = true }
@@ -189,28 +189,6 @@ fun LoginScreen(
                     Text(
                         text = "Ingresar",
                         color = Color.White
-                    )
-                }
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
-                if (loginViewModel.textoVisible) {
-                    Text(
-                        text = "Credenciales Invalidas",
-                        fontSize = 20.sp,
-                        color = Color.Red
-                    )
-                }
-                Text(
-                    text = "Aun no tienes cuenta?",
-                    modifier = Modifier.padding(top = 10.dp)
-                )
-                TextButton(
-                    onClick = {navController.navigate(Routes.REGISTRO) }
-                ) {
-                    Text(
-                        text = "Registrarte",
-                        color = RojoBase
                     )
                 }
             }

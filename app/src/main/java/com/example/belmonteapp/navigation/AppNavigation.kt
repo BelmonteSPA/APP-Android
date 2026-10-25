@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import com.example.belmonteapp.view.DetalleViajeScreen
 import com.example.belmonteapp.view.ViajeEnCursoScreen
 import com.example.belmonteapp.view.ViajeFinalizadoScreen
+import com.example.belmonteapp.view.ViajesFechaScreen
 
 @Composable
 
@@ -60,5 +61,6 @@ fun AppNavigation(){
         ) { entrada ->
             ViajeFinalizadoScreen(navController, entrada.arguments?.getInt("viajeId") ?: 0)
         }
+        composable(Routes.VIAJES_FECHA) { ViajesFechaScreen(navController) }
     }
 }
