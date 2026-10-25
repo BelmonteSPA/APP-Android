@@ -79,6 +79,8 @@ import com.example.belmonteapp.ui.theme.GrisOscuro
 import com.example.belmonteapp.util.Fechas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.input.VisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -239,267 +241,102 @@ fun AdmScreen(
                 }
             }
         }
-        Card(
+        //Mis datos: se muestran como texto y al pulsar "Editar" se abren los campos
+        TarjetaBlanca(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(1210.dp)//altura de la card
                 .padding(horizontal = 24.dp)
-                .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                .offset(y = (-16).dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
-                Button(
-                    onClick = {
-                        if (editando) registroViewModel.cancelarEdicion()
-                        editando = !editando
-                    },
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .align(Alignment.End) // Alinea el botón a la derecha
-                        .wrapContentWidth()
-                        .height(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
+            Column(modifier = Modifier.padding(24.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = if (editando) "Cancelar" else "Editar",
-                        color = Color.White
+                        text = "MIS DATOS",
+                        fontSize = 12.sp,
+                        letterSpacing = 4.sp,
+                        color = GrisOscuro
                     )
-                }
-                Text(
-                    text = "Nombres",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.nombres,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarNombres(it)},
-                    label = {
-                        Text("Ej: Juan Antonio")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Apellidos",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.apellidos,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarApellidos(it)},
-                    label = {
-                        Text("Ej: Perez Gonzalez")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Rut",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.rut,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarRut(it)},
-                    label = {
-                        Text("Ej: 00.000.000-0")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Región",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                SelectorDesplegable(
-                    label = "",
-                    opciones = registroViewModel.regiones,
-                    seleccion = registroViewModel.region,
-                    onSeleccion = { registroViewModel.cambiarRegion(it) },
-                    enabled = editando,
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Comuna",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                SelectorDesplegable(
-                    label = "",
-                    opciones = registroViewModel.comunas,
-                    seleccion = registroViewModel.comuna,
-                    onSeleccion = { registroViewModel.cambiarComuna(it) },
-                    enabled = editando && registroViewModel.region.isNotEmpty(),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Dirección",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.direccion,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarDireccion(it)},
-                    label = {
-                        Text("Ej: Calle 1")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Correo",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.mail,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarCorreo(it)},
-                    label = {
-                        Text("Ej: tuNombre@mail.com")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Teléfono",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.telefono,
-                    onValueChange = {
-                        registroViewModel.cambiarTelefono(it)
-                    },
-                    label = {
-                        Text("Ej: +56911110000")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Contraseña",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.pass,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarPass(it)},
-                    label = {
-                        Text("Contraseña")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Ingresa Código Trabajador",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.codigo,
-                    onValueChange = {
-                        registroViewModel.agregarCodigo(it)
-                    },
-                    label = {
-                        Text("Código opcional")
-                    },
-                    isError = registroViewModel.errorCodigo,
-                    supportingText = {
-                        if (registroViewModel.errorCodigo) Text("Código inválido", color = Color.Red)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                if (registroViewModel.errorPerfil.isNotEmpty()) {
-                    Text(registroViewModel.errorPerfil, color = Color.Red)
-                }
-                Button(
-                    onClick = {
-                        SesionManager.cuentaActual?.let { actual ->
-                            SesionManager.actualizarCuenta(
-                                actual.copy(
-                                    nombres = registroViewModel.nombres,
-                                    apellidos = registroViewModel.apellidos,
-                                    rut = registroViewModel.rut
-                                )
-                            )
+                    TextButton(
+                        onClick = {
+                            if (editando) registroViewModel.cancelarEdicion()
+                            editando = !editando
                         }
-                        editando = false
-
-                    },
-                    enabled = editando,
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
-                    Text(
-                        text = "Guardar",
-                        color = Color.White
-                    )
+                    ) {
+                        Text(
+                            text = if (editando) "Cancelar" else "Editar",
+                            color = RojoBase,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
 
+                if (!editando) {
+                    //Solo lectura
+                    FilaAdmin("Correo", registroViewModel.mail)
+                    FilaAdmin("Teléfono", registroViewModel.telefono)
+                    FilaAdmin("RUT", registroViewModel.rut)
+                    FilaAdmin("Región", registroViewModel.region)
+                    FilaAdmin("Comuna", registroViewModel.comuna)
+                    FilaAdmin("Dirección", registroViewModel.direccion)
+                } else {
+                    //Edicion
+                    CampoAdmin("Nombres", registroViewModel.nombres) { registroViewModel.cambiarNombres(it) }
+                    CampoAdmin("Apellidos", registroViewModel.apellidos) { registroViewModel.cambiarApellidos(it) }
+                    CampoAdmin("RUT", registroViewModel.rut) { registroViewModel.cambiarRut(it) }
+                    CampoAdmin("Correo", registroViewModel.mail) { registroViewModel.cambiarCorreo(it) }
+                    CampoAdmin("Teléfono", registroViewModel.telefono) { registroViewModel.cambiarTelefono(it) }
+                    SelectorDesplegable(
+                        label = "Región",
+                        opciones = registroViewModel.regiones,
+                        seleccion = registroViewModel.region,
+                        onSeleccion = { registroViewModel.cambiarRegion(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = coloresCampo()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SelectorDesplegable(
+                        label = "Comuna",
+                        opciones = registroViewModel.comunas,
+                        seleccion = registroViewModel.comuna,
+                        onSeleccion = { registroViewModel.cambiarComuna(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = registroViewModel.region.isNotEmpty(),
+                        colors = coloresCampo()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CampoAdmin("Dirección", registroViewModel.direccion) { registroViewModel.cambiarDireccion(it) }
+                    CampoAdmin("Contraseña", registroViewModel.pass, esPassword = true) { registroViewModel.cambiarPass(it) }
 
+                    if (registroViewModel.errorPerfil.isNotEmpty()) {
+                        Text(
+                            text = registroViewModel.errorPerfil,
+                            color = Color.Red,
+                            fontSize = 13.sp
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            //guardarCambios valida y guarda todos los campos en la sesion
+                            if (registroViewModel.guardarCambios()) editando = false
+                        },
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = RojoBase)
+                    ) {
+                        Text(
+                            text = "Guardar",
+                            color = Color.White,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
             }
         }
     }
@@ -530,4 +367,50 @@ private fun DatoAdmin(
             color = GrisOscuro
         )
     }
+}
+
+
+//Fila de solo lectura: titulo a la izquierda y valor a la derecha
+@Composable
+private fun FilaAdmin(titulo: String, valor: String) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = titulo, fontSize = 14.sp, color = GrisOscuro)
+            Text(
+                text = if (valor.isBlank()) "-" else valor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.End,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+        HorizontalDivider(color = Color.LightGray)
+    }
+}
+
+//Campo de texto editable con el estilo de la app
+@Composable
+private fun CampoAdmin(
+    titulo: String,
+    valor: String,
+    esPassword: Boolean = false,
+    onCambio: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onCambio,
+        label = { Text(titulo) },
+        singleLine = true,
+        visualTransformation = if (esPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = coloresCampo()
+    )
 }
