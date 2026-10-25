@@ -77,6 +77,8 @@ import com.example.belmonteapp.componentes.TarjetaBlanca
 import com.example.belmonteapp.modelo.EstadoViaje
 import com.example.belmonteapp.ui.theme.GrisOscuro
 import com.example.belmonteapp.util.Fechas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.DirectionsCar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,15 +98,23 @@ fun AdmScreen(
 
     var editando by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
+
     //Nombre de la cuenta con sesion iniciada
     val cuenta = SesionManager.cuentaActual
     val nombreCompleto = if (cuenta == null) "Administrador" else "${cuenta.nombres} ${cuenta.apellidos}"
+
     //Resumen de todos los viajes (datos reales de Room)
     val viajes by viajesViewModel.viajes.collectAsState()
     val conductores by viajesViewModel.conductores.collectAsState()
     val viajesHoy = viajes.count { it.fecha == Fechas.hoy() }
     val pendientes = viajes.count { it.estado == EstadoViaje.PENDIENTE }
     val enCurso = viajes.count { it.estado == EstadoViaje.EN_CURSO }
+
+    //Conductores ocupados = los que tienen un viaje EN_CURSO
+    val ocupados = conductores.count { conductor ->
+        viajes.any { it.conductorId == conductor.id && it.estado == EstadoViaje.EN_CURSO }
+    }
+    val disponibles = conductores.size - ocupados
 
     Column(
         modifier = Modifier
@@ -184,92 +194,49 @@ fun AdmScreen(
             }
         }
 
-        Card(
+        //Flota: conductores registrados y cuantos estan libres
+        TarjetaBlanca(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
                 .padding(horizontal = 24.dp)
-                .offset(y = (-35).dp) // sube la segunda tarjeta para juntarla a la primera
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                .offset(y = (-30).dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Conductor",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                Text(
-                    text = "Nombre Conductor",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .background(RojoBase.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = "Llamar",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Chat,
-                            contentDescription = "Mensaje",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Natificación",
-                            tint = Color.White
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.DirectionsCar,
+                        contentDescription = "Flota",
+                        tint = RojoBase
+                    )
                 }
-
+                Column(modifier = Modifier.padding(start = 16.dp)) {
+                    Text(
+                        text = "FLOTA",
+                        fontSize = 12.sp,
+                        letterSpacing = 4.sp,
+                        color = GrisOscuro
+                    )
+                    Text(
+                        text = "${conductores.size} conductores",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = "$disponibles disponibles · $ocupados en viaje",
+                        fontSize = 14.sp,
+                        color = GrisOscuro
+                    )
+                }
             }
         }
         Card(
