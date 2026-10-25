@@ -60,4 +60,4 @@ fun abrirReclamoSernac(context: Context) {
     } catch (e: ActivityNotFoundException) {
         Toast.makeText(context, "No hay un navegador instalado", Toast.LENGTH_SHORT).show()
     }
-}@
+}

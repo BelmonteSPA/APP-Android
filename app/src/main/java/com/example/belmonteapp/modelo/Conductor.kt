@@ -9,7 +9,8 @@ data class Conductor (
     val id : Int,
     val nombre : String,
     val vehiculo : String,
-    val patente : String
+    val patente : String,
+    val rut : String = ""
 ){
 
 }
