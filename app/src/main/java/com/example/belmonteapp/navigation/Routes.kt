@@ -9,4 +9,5 @@ object Routes {
     const val CONDUCTOR = "Conductor"
     const val ADMIN = "Administrador"
     const val MENU = "Menu"
+    const val VIAJE = "Viaje"
 }

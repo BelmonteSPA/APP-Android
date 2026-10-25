@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import com.example.belmonteapp.navigation.Routes
 import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.MenuViewModel
+import com.example.belmonteapp.viewModel.NuevoViajeViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -30,10 +31,11 @@ import org.osmdroid.views.overlay.Marker
 @Composable
 fun NuevoViajeScreen(
     navController: NavController,
-    menuViewModel: MenuViewModel = viewModel()
+    menuViewModel: MenuViewModel = viewModel(),
+    nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
 ) {
-    var origen by remember { mutableStateOf("") }
-    var destino by remember { mutableStateOf("") }
+    var origen by remember { mutableStateOf(false) }
+    var destino by remember { mutableStateOf(false) }
 
     // Box permite superponer elementos (como capas)
     Box(modifier = Modifier.fillMaxSize()) {
@@ -79,8 +81,8 @@ fun NuevoViajeScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                    value = origen,
-                    onValueChange = { origen = it },
+                    value = nuevoViajeViewModel.origen,
+                    onValueChange = { nuevoViajeViewModel.agregarOrigen(it)},
                     label = {
                         Text("Punto de partida")
                     },
@@ -90,8 +92,8 @@ fun NuevoViajeScreen(
                 )
 
                 OutlinedTextField(
-                    value = destino,
-                    onValueChange = { destino = it },
+                    value = nuevoViajeViewModel.destino,
+                    onValueChange = { nuevoViajeViewModel.agregarDestino(it) },
                     label = {
                         Text("¿A dónde vas?")
                     },

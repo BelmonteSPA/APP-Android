@@ -3,6 +3,7 @@ package com.example.belmonteapp.data
 import com.example.belmonteapp.modelo.Cuenta
 import com.example.belmonteapp.modelo.Tipo
 import com.example.belmonteapp.modelo.Usuario
+import com.example.belmonteapp.modelo.Viajes
 
 class DataP{
 
@@ -24,4 +25,8 @@ class DataP{
 
         fun esValido(codigo: String) = codigo.trim().uppercase() in validos
     }
+    /*object viajes{
+        val viajes = listOf(
+            Viajes(0, )
+    }*/
 }
