@@ -50,3 +50,14 @@ fun nombreLugar (lugar : String) : String {
 fun direccionLugar(lugar : String) : String {
     return lugar.substringAfter(",", "").trim()
 }
+
+//Abre la pagina del SERNAC en el navegador para que el pasajero haga un reclamo
+fun abrirReclamoSernac(context: Context) {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.sernac.cl"))
+
+    try {
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, "No hay un navegador instalado", Toast.LENGTH_SHORT).show()
+    }
+}@
