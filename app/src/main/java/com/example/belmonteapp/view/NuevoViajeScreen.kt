@@ -45,13 +45,14 @@ fun NuevoViajeScreen(
 ) {
     var mapView by remember { mutableStateOf<MapView?>(null) }
     val context = LocalContext.current
+    var miUbicacion by remember { mutableStateOf<MyLocationNewOverlay?>(null) }
 
     // Launcher para pedir el permiso de ubicación
     val launcherPermisos = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { estaConcedido ->
         if (estaConcedido) {
-            // El usuario aceptó el permiso
+            miUbicacion?.enableMyLocation()
         }
     }
 
@@ -91,10 +92,9 @@ fun NuevoViajeScreen(
                         this
                     ).apply {
                         enableMyLocation()
-                        enableFollowLocation()
-
                     }
 
+                    miUbicacion = miUbicacionOverlay
                     overlays.add(miUbicacionOverlay)
 
                     // 3. Zoom inicial
@@ -213,13 +213,37 @@ fun NuevoViajeScreen(
                 when (nuevoViajeViewModel.estadoSeleccion) {
 
                     EstadoSeleccion.SELECCIONAR_ORIGEN -> {
-                        Text("📍 Selecciona tu punto de origen")
-                        Text("Toca cualquier lugar del mapa")
+                        Text("📍 Selecciona tu punto de origen", color = Color.Black)
+                        Text("Toca el mapa o usa tu ubicación", color = Color.Black)
+                        OutlinedButton(
+                            onClick = {
+                                val punto = miUbicacion?.myLocation
+                                if (punto == null) {
+                                    Toast.makeText(
+                                        context,
+                                        "Aún no se detecta tu ubicación. Revisa que el GPS esté activo",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    nuevoViajeViewModel.establecerOrigen(context, GeoPoint(punto))
+                                    mapView?.controller?.animateTo(punto)
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, RojoBase),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = RojoBase)
+                        ) {
+                            Text("Usar mi ubicación")
+                        }
                     }
 
                     EstadoSeleccion.SELECCIONANDO_DESTINO -> {
                         Text("📍 ${nuevoViajeViewModel.direccionOrigen}")
                         Text("🏁 Selecciona tu punto de destino")
+
                     }
 
                     EstadoSeleccion.LISTO -> {
