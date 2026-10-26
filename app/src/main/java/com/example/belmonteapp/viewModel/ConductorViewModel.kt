@@ -22,17 +22,5 @@ class ConductorViewModel {
         // NOTA: Aquí también podrías mandar la foto a tu servidor/base de datos si lo necesitas
     }
 
-    fun agregarDestino(nuevoDestino: String){
-        destino = nuevoDestino
-    }
-    fun agregarOrigen(nuevoOrigen: String){
-        origen = nuevoOrigen
-    }
-    fun agregarFecha(nuevaFecha: String){
-        fecha = nuevaFecha
-    }
-    fun agregarHora(nuevaHora: String){
-        hora = nuevaHora
-    }
 
 }

@@ -1,6 +1,9 @@
 package com.ejemplo.miapp
 
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import org.osmdroid.views.overlay.MapEventsOverlay
@@ -10,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +31,9 @@ import org.osmdroid.views.overlay.Marker
 import androidx.core.content.ContextCompat
 import com.example.belmonteapp.R
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import androidx.core.graphics.toColorInt
 
 @Composable
 fun NuevoViajeScreen(
@@ -35,6 +42,21 @@ fun NuevoViajeScreen(
     nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
 ) {
     var mapView by remember { mutableStateOf<MapView?>(null) }
+    val context = LocalContext.current
+
+    // Launcher para pedir el permiso de ubicación
+    val launcherPermisos = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { estaConcedido ->
+        if (estaConcedido) {
+            // El usuario aceptó el permiso
+        }
+    }
+
+    // Solicitar el permiso al entrar a la pantalla
+    LaunchedEffect(Unit) {
+        launcherPermisos.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
 
     // Box permite superponer elementos (como capas)
     Box(modifier = Modifier.fillMaxSize()) {
@@ -49,22 +71,33 @@ fun NuevoViajeScreen(
                     mapView = this
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
+
+                    // Filtro de escala de grises
                     overlayManager.tilesOverlay.setColorFilter(
                         android.graphics.ColorMatrixColorFilter(
                             android.graphics.ColorMatrix().apply { setSaturation(0.2f) }
                         )
                     )
-
-                    // Centrar mapa (Ejemplo: Santiago)
-                    val ubicacionActual = GeoPoint(-33.4489, -70.6693)
+                    // Punto inicial para que NUNCA parta en pantalla gris
+                    val ubicacionInicial = GeoPoint(-33.4489, -70.6693) // Santiago por defecto
                     controller.setZoom(16.0)
-                    controller.setCenter(ubicacionActual)
+                    controller.setCenter(ubicacionInicial)
 
-                    // Marcador de la ubicación del usuario (ej: auto o usuario)
-                    val marker = Marker(this)
-                    marker.position = ubicacionActual
-                    marker.title = "Tu ubicación"
-                    overlays.add(marker)
+                    // ubicación REAL
+                    val miUbicacionOverlay = MyLocationNewOverlay(
+                        GpsMyLocationProvider(context),
+                        this
+                    ).apply {
+                        enableMyLocation()
+                        enableFollowLocation()
+
+                    }
+
+                    overlays.add(miUbicacionOverlay)
+
+                    // 3. Zoom inicial
+                    controller.setZoom(16.0)
+
                     val eventosMapa = MapEventsOverlay(
                         object : MapEventsReceiver {
 

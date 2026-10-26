@@ -20,5 +20,5 @@ class LoginViewModel: ViewModel() {
         pass = nuevaPass
     }
 
-    fun login(): Boolean = SesionManager.iniciarSesion(mail.trim(), pass)
+
 }

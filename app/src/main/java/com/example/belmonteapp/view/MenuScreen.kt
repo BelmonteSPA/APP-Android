@@ -98,7 +98,7 @@ fun MenuScreen(
                 .padding(padding)
         ) {
             when (selector) {
-                0 -> PantallaTemporal("Mis viajes")
+                0 -> MisViajesScreen(navController)
                 1 -> NuevoViajeScreen(navController)
                 2 -> {
 

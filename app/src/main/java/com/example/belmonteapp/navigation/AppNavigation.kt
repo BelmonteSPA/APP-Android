@@ -10,7 +10,6 @@ import com.example.belmonteapp.view.HomeScreen
 import com.example.belmonteapp.view.LoginScreen
 import com.example.belmonteapp.view.RegistroScreen
 import com.example.belmonteapp.view.ConductorScreen
-import com.example.belmonteapp.view.ConfiScreen
 import com.example.belmonteapp.view.MenuScreen
 import com.example.belmonteapp.view.ViajeScreen
 import com.example.belmonteapp.view.ViajesConductorScreen

@@ -1,6 +1,8 @@
 package com.example.belmonteapp.viewModel
 
 import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.belmonteapp.data.DataViajes
@@ -22,6 +24,8 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
 
     private val viajeRepository : ViajeRepository
     private val conductorRepository : ConductorRepository
+
+    val MisViajes  by mutableStateOf("")
 
     val viajes : StateFlow<List<Viajes>>
     val conductores : StateFlow<List<Conductor>>
@@ -100,4 +104,9 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             viajeRepository.actualizarViaje(actualizado)
         }
     }
+    /*
+    fun crearViaje (){
+        val nuevoViaje = Viajes(
+        )
+    }*/
 }
