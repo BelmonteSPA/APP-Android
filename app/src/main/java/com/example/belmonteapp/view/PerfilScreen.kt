@@ -14,7 +14,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,7 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import android.util.Log
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Chat
@@ -133,6 +134,7 @@ fun PerfilScreen(
     val viajeActual = viajesViewModel.viajeConConductor(viajes, cuenta?.rut.orEmpty())
     val conductorViaje = conductores.find { it.id == viajeActual?.conductorId }
     val enCurso = viajeActual?.estado == EstadoViaje.EN_CURSO
+    Log.d("PERFIL", "rut=${cuenta?.rut} | viajes=${viajes.size} | mios=${viajes.count { it.pasajeroRut == cuenta?.rut }} | conductores=${conductores.size}")
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -246,7 +248,17 @@ fun PerfilScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     BotonCirculo(Icons.Default.Call, "Llamar") {
-                        // llamar al conductor
+                        val telefono = conductorViaje?.telefono.orEmpty()
+                        if (telefono.isBlank()) {
+                            Toast.makeText(context, "No hay un conductor con teléfono para llamar", Toast.LENGTH_SHORT).show()
+                        } else {
+                            val numero = telefono.filter { it.isDigit() || it == '+' }
+                            try {
+                                context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$numero")))
+                            } catch (e: ActivityNotFoundException) {
+                                Toast.makeText(context, "Este dispositivo no puede hacer llamadas", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                     BotonCirculo(Icons.Default.QrCodeScanner, "Escanear QR del vehículo") {
                         scanner.startScan()
