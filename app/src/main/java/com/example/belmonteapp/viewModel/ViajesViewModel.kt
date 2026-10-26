@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import android.location.Location
 
 
 //lo usan las pantallas del conductor y del admin
@@ -128,5 +129,24 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         return mios.firstOrNull { it.estado == EstadoViaje.EN_CURSO }
             ?: mios.filter { it.estado == EstadoViaje.FINALIZADO }.maxWithOrNull(porFecha)
             ?: mios.maxWithOrNull(porFecha)
+    }
+    //pasajero: su viaje FINALIZADO mas reciente
+    fun ultimoViajeFinalizado(viajes: List<Viajes>, rutPasajero: String): Viajes? {
+        if (rutPasajero.isBlank()) return null
+
+        return viajes
+            .filter { it.pasajeroRut == rutPasajero && it.estado == EstadoViaje.FINALIZADO }
+            .maxWithOrNull(compareBy<Viajes>({ it.fecha }, { it.hora }))
+    }
+
+    //distancia en linea recta entre origen y destino, en km
+    fun distanciaKm(viaje: Viajes): Double {
+        val resultado = FloatArray(1)
+        Location.distanceBetween(
+            viaje.latitudOrigen, viaje.longitudOrigen,
+            viaje.latitudDestino, viaje.longitudDestino,
+            resultado
+        )
+        return resultado[0] / 1000.0
     }
 }

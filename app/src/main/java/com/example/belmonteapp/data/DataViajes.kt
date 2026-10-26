@@ -67,7 +67,7 @@ object DataViajes {
             numeroVuelo = vuelo,
             pasajeroNombre = pasajero,
             pasajeroTelefono = telefono,
-            pasajeroRut = "",
+            pasajeroRut = rut,
             conductorId = conductor?.id,
             conductorNombre = conductor?.nombre ?: "",
             estado = estado,

@@ -13,7 +13,7 @@ import com.example.belmonteapp.modelo.Viajes
 
 @Database(
     entities = [Viajes::class, Conductor::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @ColumnTypeConverters (Converters::class)

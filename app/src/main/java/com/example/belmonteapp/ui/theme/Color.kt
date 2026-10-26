@@ -14,4 +14,4 @@ val RojoBase = Color(0xffC8102E)
 
 val Gris = Color(0xFFB9AFAF)
 
-val GrisOscuro = Color(0xFF333333)
+val GrisOscuro = Color(0xFF464040)

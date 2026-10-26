@@ -44,7 +44,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import com.example.belmonteapp.util.Fechas
+import com.example.belmonteapp.util.nombreLugar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -134,7 +135,10 @@ fun PerfilScreen(
     val viajeActual = viajesViewModel.viajeConConductor(viajes, cuenta?.rut.orEmpty())
     val conductorViaje = conductores.find { it.id == viajeActual?.conductorId }
     val enCurso = viajeActual?.estado == EstadoViaje.EN_CURSO
+    // Último viaje terminado, para la card Resumen
+    val ultimoViaje = viajesViewModel.ultimoViajeFinalizado(viajes, cuenta?.rut.orEmpty())
     Log.d("PERFIL", "rut=${cuenta?.rut} | viajes=${viajes.size} | mios=${viajes.count { it.pasajeroRut == cuenta?.rut }} | conductores=${conductores.size}")
+    Log.d("PERFIL", "cuentaRut='${cuenta?.rut}' | ruts en BD=${viajes.map { it.pasajeroRut }.distinct()} | total=${viajes.size}")
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -197,17 +201,45 @@ fun PerfilScreen(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "RESUMEN",
+                    text = "RESUMEN · ÚLTIMO VIAJE",
                     fontSize = 12.sp,
                     letterSpacing = 4.sp,
                     color = GrisOscuro
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    DatoResumen("$2000", "Total", Modifier.weight(1f))
-                    DatoResumen("30 km", "Distancia", Modifier.weight(1f))
-                    DatoResumen("14:00", "Horas", Modifier.weight(1f))
-                    DatoResumen("12", "Viajes", Modifier.weight(1f))
+
+                if (ultimoViaje == null) {
+                    Text(
+                        text = "Aún no tienes viajes finalizados",
+                        fontSize = 16.sp,
+                        color = GrisOscuro
+                    )
+                } else {
+                    val minutos = (ultimoViaje.terminoMillis - ultimoViaje.inicioMillis) / 60000
+                    val duracion =
+                        if (minutos < 60) "$minutos min" else "${minutos / 60} h ${minutos % 60} min"
+
+                    Text(
+                        text = "${nombreLugar(ultimoViaje.origen)} → ${nombreLugar(ultimoViaje.destino)}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "${Fechas.tituloDia(ultimoViaje.fecha)} · ${Fechas.horaTexto(ultimoViaje.hora)}",
+                        fontSize = 14.sp,
+                        color = GrisOscuro
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        DatoResumen(
+                            "%.1f km".format(viajesViewModel.distanciaKm(ultimoViaje)),
+                            "Distancia",
+                            Modifier.weight(1f)
+                        )
+                        DatoResumen(duracion, "Duración", Modifier.weight(1f))
+                        DatoResumen(ultimoViaje.codigo, "Viaje", Modifier.weight(1f))
+                    }
                 }
             }
         }
