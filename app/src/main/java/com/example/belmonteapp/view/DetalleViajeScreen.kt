@@ -62,19 +62,35 @@ fun DetalleViajeScreen(
     //Busca el viaje por su id (mientras carga la base de datos no hay nada que mostrar)
     val viaje = viajes.find { it.id == viajeId } ?: return
 
+    //Viaje que el conductor ya tiene EN_CURSO (si existe). Solo puede hacer uno a la vez.
+    val viajeActivo = viajes.find {
+        it.conductorId == viaje.conductorId &&
+                it.estado == EstadoViaje.EN_CURSO &&
+                it.id != viaje.id
+    }
+
     Scaffold(
         containerColor = Color.White,
         contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         bottomBar = {
             //El boton solo aparece si el viaje esta ASIGNADO
             if (viaje.estado == EstadoViaje.ASIGNADO) {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
                         .navigationBarsPadding()
                         .padding(24.dp)
                 ) {
+                    //Aviso si ya hay otro viaje en curso
+                    if (viajeActivo != null) {
+                        Text(
+                            text = "Debes finalizar el viaje #${viajeActivo.codigo} antes de iniciar otro.",
+                            color = RojoBase,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                    }
                     Button(
                         onClick = {
                             viajesViewModel.iniciarViaje(viaje)
@@ -82,6 +98,8 @@ fun DetalleViajeScreen(
                                 popUpTo(Routes.DETALLE_VIAJE) { inclusive = true }
                             }
                         },
+                        //Solo se puede iniciar si no hay otro viaje en curso
+                        enabled = viajeActivo == null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
