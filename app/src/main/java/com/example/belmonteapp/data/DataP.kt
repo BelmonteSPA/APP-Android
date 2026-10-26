@@ -39,8 +39,5 @@ class DataP{
 
         fun esValido(codigo: String) = codigo.trim().uppercase() in validos
     }
-    /*object viajes{
-        val viajes = listOf(
-            Viajes(0, )
-    }*/
+
 }

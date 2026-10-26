@@ -20,13 +20,13 @@ import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.MenuViewModel
 import com.example.belmonteapp.viewModel.NuevoViajeViewModel
 import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.TilesOverlay
 import androidx.core.content.ContextCompat
 import com.example.belmonteapp.R
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 
 @Composable
 fun NuevoViajeScreen(
@@ -49,6 +49,11 @@ fun NuevoViajeScreen(
                     mapView = this
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
+                    overlayManager.tilesOverlay.setColorFilter(
+                        android.graphics.ColorMatrixColorFilter(
+                            android.graphics.ColorMatrix().apply { setSaturation(0.2f) }
+                        )
+                    )
 
                     // Centrar mapa (Ejemplo: Santiago)
                     val ubicacionActual = GeoPoint(-33.4489, -70.6693)
@@ -159,7 +164,6 @@ fun NuevoViajeScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)
                 .statusBarsPadding()
                 .padding(25.dp)
                 .align(Alignment.TopCenter), // Lo posiciona arriba en la pantalla

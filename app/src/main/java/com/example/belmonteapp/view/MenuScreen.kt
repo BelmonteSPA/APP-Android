@@ -52,13 +52,12 @@ fun MenuScreen(
         ItemMenu("Mis viajes", Icons.Outlined.LocationOn, Icons.Filled.LocationOn),
         ItemMenu("Nuevo viaje", Icons.Outlined.DirectionsCar, Icons.Filled.DirectionsCar),
         ItemMenu("Perfil", Icons.Outlined.Person, Icons.Filled.Person),
-        ItemMenu("Configuración", Icons.Outlined.Settings, Icons.Filled.Settings),
     )
 
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = Color(0xFFF8EDEB) // fondo rosado suave de la barra
+                containerColor = Color.White // fondo rosado suave de la barra
             ) {
                 items.forEachIndexed { index, item ->
                     val seleccionado = selector == index
@@ -91,11 +90,12 @@ fun MenuScreen(
                 }
             }
         }
-    ) { _ ->
+    ) {padding ->
         // Aquí se muestra la pantalla según la opción elegida
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
         ) {
             when (selector) {
                 0 -> PantallaTemporal("Mis viajes")
@@ -108,7 +108,7 @@ fun MenuScreen(
                         else -> PerfilScreen(navController)
                     }
                 }
-                3 -> ConfiScreen(navController)
+
             }
         }
     }

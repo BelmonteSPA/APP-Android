@@ -18,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.belmonteapp.view.AsignarConductorScreen
 import com.example.belmonteapp.view.DetalleViajeScreen
+import com.example.belmonteapp.view.MisViajesScreen
 import com.example.belmonteapp.view.ModificarAsignacionScreen
 import com.example.belmonteapp.view.PendientesScreen
 import com.example.belmonteapp.view.ViajeEnCursoScreen
@@ -43,7 +44,7 @@ fun AppNavigation(){
         composable (Routes.ADMIN){ AdmScreen(navController) }
         composable (Routes.MENU){ MenuScreen(navController) }
         composable (Routes.VIAJE){ ViajeScreen(navController) }
-        composable (Routes.CONFIGURACION){ ConfiScreen(navController) }
+        composable (Routes.MIS_VIAJES){ MisViajesScreen(navController) }
         composable(Routes.VIAJES_DIA) { ViajesConductorScreen(navController, soloHoy = true) }
         composable(Routes.VIAJES_ASIGNADOS) { ViajesConductorScreen(navController, soloHoy = false) }
         composable(

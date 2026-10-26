@@ -1,11 +1,11 @@
 package com.example.belmonteapp.view
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
-import com.example.belmonteapp.data.SesionManager
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,15 +14,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,17 +33,22 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,32 +56,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.belmonteapp.viewModel.PerfilViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.belmonteapp.componentes.CabeceraRoja
 import com.example.belmonteapp.componentes.SelectorDesplegable
-import com.example.belmonteapp.navigation.Routes
-import com.example.belmonteapp.ui.theme.RojoBase
-import com.example.belmonteapp.viewModel.RegistroViewModel
+import com.example.belmonteapp.componentes.TarjetaBlanca
 import com.example.belmonteapp.componentes.coloresCampo
-import android.widget.Toast
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.belmonteapp.data.SesionManager
+import com.example.belmonteapp.navigation.Routes
+import com.example.belmonteapp.ui.theme.GrisOscuro
+import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.util.abrirReclamoSernac
+import com.example.belmonteapp.viewModel.PerfilViewModel
 import com.example.belmonteapp.viewModel.QrViewModel
+import com.example.belmonteapp.viewModel.RegistroViewModel
 import com.example.belmonteapp.viewModel.ViajesViewModel
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
@@ -91,9 +94,7 @@ fun PerfilScreen(
     registroViewModel: RegistroViewModel = viewModel(),
     qrViewModel: QrViewModel = viewModel(),
     viajesViewModel: ViajesViewModel = viewModel()
-
-
-    ) {
+) {
     var fotoUri by remember { mutableStateOf<Uri?>(null) }
 
     val launcher = rememberLauncherForActivityResult(
@@ -104,7 +105,12 @@ fun PerfilScreen(
     // Carga los datos de la cuenta que inició sesión
     LaunchedEffect(Unit) { registroViewModel.cargarDesdeSesion() }
 
-    //Escaner de QR (igual que el ejemplo del profe)
+    // Datos para el encabezado
+    val cuenta = SesionManager.cuentaActual
+    val nombreCompleto =
+        if (cuenta == null) "Usuario" else "${cuenta.nombres} ${cuenta.apellidos}"
+
+    // Escáner de QR
     val context = LocalContext.current
     val contenidoQR by qrViewModel.contenidoQR.collectAsStateWithLifecycle()
     val opcionesQR = remember {
@@ -117,557 +123,419 @@ fun PerfilScreen(
     }
     var mostrarDatos by remember { mutableStateOf(false) }
 
-    //Conductor del vehiculo escaneado: se busca por la patente del QR en Room
+    // Conductor del vehículo escaneado: se busca por la patente del QR en Room
     val conductores by viajesViewModel.conductores.collectAsState()
-    val conductorQR = if (contenidoQR.isEmpty()) null else conductores.find { it.patente == qrViewModel.patente() }
-
+    val conductorQR =
+        if (contenidoQR.isEmpty()) null else conductores.find { it.patente == qrViewModel.patente() }
 
     Column(
         modifier = Modifier
-            .background(Color.White)//es el color del fondo
             .fillMaxSize()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())//activa la barra de desplazamiento
-
-
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
     ) {
-        //Encabezado
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(
-                    color = RojoBase,
-                    shape = RoundedCornerShape(
-                        bottomStart = 56.dp, bottomEnd = 56.dp
-                    )))
-        {IconButton(
-                    onClick = {
-                        navController.navigate(Routes.HOME)
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .statusBarsPadding()
-                        .padding(start = 16.dp, top = 8.dp)
-                        .size(44.dp)
-                        .background(Color.White.copy(alpha = 0.18f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver",
-                        tint = Color.White
-                    )
-                }
-        FotoPerfil(
-            fotoUri = fotoUri,
-            onClick = {
-                launcher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            },
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 25.dp, bottom = 60.dp)
-        )// Start = empuja hacia lado derecho
-         //Bottom = empuja hacia arriba
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(top = 25.dp)//agrega expacio extra texto
-            ) {
+        // Encabezado: volver, foto y nombre completo
+        CabeceraRoja(
+            alto = 280.dp
+        ) {
             Text(
-                text = "Perfil",
+                text = "PERFIL",
                 color = Color.White,
-                fontSize = 20.sp,//tamaño de la fuente
+                fontSize = 14.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 4.sp,
-
-                )
-            Spacer(modifier = Modifier.height(60.dp))
-            Text(
                 modifier = Modifier
-                    .statusBarsPadding(),
-                text = SesionManager.cuentaActual?.nombres ?: "Usuario",
-                color = Color.White,
-                fontSize = 15.sp,
-                letterSpacing = 4.sp,
-                textAlign = TextAlign.End,
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 20.dp)
             )
-        } }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(180.dp)
-                .padding(horizontal = 24.dp)
-                .offset(y = (-44).dp) // la sube para que se monte sobre el rojo
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
+                    .align(Alignment.BottomStart)
+                    .padding(start = 24.dp, end = 24.dp, bottom = 60.dp)
             ) {
-                Text(
-                    text = "Total",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                Text(
-                    text = "$2000",
-                    color = Color.Black,
-                    fontSize = 30.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-                ) {
-                    Text(
-                        text = "Distancia"
-                    )
-                    Text(text = "Horas")
-                    Text(text = "Viajes")
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "30km"
-                    )
-                    Text(text = "14:00")
-                    Text(text = "12   ")
-                }
-            }
-        }
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .padding(horizontal = 24.dp)
-                .offset(y = (-35).dp) // sube la segunda tarjeta para juntarla a la primera
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
-                Text(
-                    text = "Conductor",
-                    color = Color.Black,
-                    fontSize = 18.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                Text(
-                    text = "Nombre Conductor",
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    letterSpacing = 4.sp,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
-                ) {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Call,
-                            contentDescription = "Llamar",
-                            tint = Color.White
-                        )
-                    }
-                    //Escanear el QR del vehiculo
-                    IconButton(
-                        onClick = {
-                            scanner.startScan()
-                                .addOnSuccessListener { barcode ->
-                                    qrViewModel.guardarQR(barcode.rawValue.orEmpty())
-                                    mostrarDatos = true
-                                }
-                                .addOnFailureListener { error ->
-                                    Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.QrCodeScanner,
-                            contentDescription = "Escanear QR del vehículo",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Chat,
-                            contentDescription = "Mensaje",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Routes.PERFIL)
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(RojoBase, CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = "Natificación",
-                            tint = Color.White
-                        )
-                    }
-                }
-
-            }
-        }
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1210.dp)//altura de la card
-                .padding(horizontal = 24.dp)
-                .offset(y = (-25).dp) // sube la segunda tarjeta para juntarla a la primera
-                .shadow(16.dp, RoundedCornerShape(28.dp)),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
-                Button(
+                FotoPerfil(
+                    fotoUri = fotoUri,
                     onClick = {
-                        if (editando) registroViewModel.cancelarEdicion()
-                        editando = !editando
+                        launcher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
                     },
                     modifier = Modifier
-                        .padding(top = 12.dp)
-                        .align(Alignment.End) // Alinea el botón a la derecha
-                        .wrapContentWidth()
-                        .height(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
+                )
+                Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(
-                        text = if (editando) "Cancelar" else "Editar",
-                        color = Color.White
-                    )
-                }
-                Text(
-                    text = "Nombres",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.nombres,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarNombres(it)},
-                    label = {
-                        Text("Ej: Juan Antonio")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Apellidos",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.apellidos,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarApellidos(it)},
-                    label = {
-                        Text("Ej: Perez Gonzalez")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Rut",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.rut,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarRut(it)},
-                    label = {
-                        Text("Ej: 00.000.000-0")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Región",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                SelectorDesplegable(
-                    label = "",
-                    opciones = registroViewModel.regiones,
-                    seleccion = registroViewModel.region,
-                    onSeleccion = { registroViewModel.cambiarRegion(it) },
-                    enabled = editando,
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Comuna",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                SelectorDesplegable(
-                    label = "",
-                    opciones = registroViewModel.comunas,
-                    seleccion = registroViewModel.comuna,
-                    onSeleccion = { registroViewModel.cambiarComuna(it) },
-                    enabled = editando && registroViewModel.region.isNotEmpty(),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Dirección",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.direccion,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarDireccion(it)},
-                    label = {
-                        Text("Ej: Calle 1")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Correo",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.mail,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarCorreo(it)},
-                    label = {
-                        Text("Ej: tuNombre@mail.com")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Teléfono",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.telefono,
-                    onValueChange = {
-                        registroViewModel.cambiarTelefono(it)
-                    },
-                    label = {
-                        Text("Ej: +56911110000")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Contraseña",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.pass,
-                    enabled = editando,
-                    onValueChange = {registroViewModel.cambiarPass(it)},
-                    label = {
-                        Text("Contraseña")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = coloresCampo()
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Ingresa Código Trabajador",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(start = 10.dp).fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = registroViewModel.codigo,
-                    onValueChange = {
-                        registroViewModel.agregarCodigo(it)
-                    },
-                    label = {
-                        Text("Código opcional")
-                    },
-                    isError = registroViewModel.errorCodigo,
-                    supportingText = {
-                        if (registroViewModel.errorCodigo) Text("Código inválido", color = Color.Red)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                if (registroViewModel.errorPerfil.isNotEmpty()) {
-                    Text(registroViewModel.errorPerfil, color = Color.Red)
-                }
-                Button(
-                    onClick = {
-                        SesionManager.cuentaActual?.let { actual ->
-                            SesionManager.actualizarCuenta(
-                                actual.copy(
-                                    nombres = registroViewModel.nombres,
-                                    apellidos = registroViewModel.apellidos,
-                                    rut = registroViewModel.rut
-                                )
-                            )
-                        }
-                        editando = false},
-                    enabled = editando,
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RojoBase
-                    )
-                ){
-                    Text(
-                        text = "Guardar",
-                        color = Color.White
-                    )
-                }
-
-
-            }
-        }
-        Spacer(modifier = Modifier.height(100.dp))//los campos finales se puedan ver completos
-        //Ventana con los datos del vehiculo escaneado
-        if (mostrarDatos) {
-            AlertDialog(
-                onDismissRequest = { mostrarDatos = false },
-                containerColor = Color.White,
-                title = {
-                    Text(
-                        text = if (conductorQR == null) "QR no válido" else "Datos del vehículo",
+                        text = nombreCompleto,
+                        color = Color.White,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
-                },
-                text = {
-                    if (conductorQR == null) {
-                        Text("Este QR no pertenece a un vehículo de Belmonte.")
-                    } else {
-                        Column {
-                            Text("Conductor: ${conductorQR.nombre}")
-                            Text("RUT: ${conductorQR.rut}")
-                            Text("Vehículo: ${conductorQR.vehiculo}")
-                            Text("Patente: ${conductorQR.patente}")
-                        }
+                    Text(
+                        text = "Pasajero",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+        }
+
+        // Encabezado
+        TarjetaBlanca(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .offset(y = (-44).dp)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "RESUMEN",
+                    fontSize = 12.sp,
+                    letterSpacing = 4.sp,
+                    color = GrisOscuro
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    DatoResumen("$2000", "Total", Modifier.weight(1f))
+                    DatoResumen("30 km", "Distancia", Modifier.weight(1f))
+                    DatoResumen("14:00", "Horas", Modifier.weight(1f))
+                    DatoResumen("12", "Viajes", Modifier.weight(1f))
+                }
+            }
+        }
+
+        // Datos del Conductor del vehículo (se llena al escanear el QR)
+        TarjetaBlanca(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .offset(y = (-30).dp)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "CONDUCTOR",
+                    fontSize = 12.sp,
+                    letterSpacing = 4.sp,
+                    color = GrisOscuro
+                )
+                Text(
+                    text = conductorQR?.nombre ?: "Escanea el QR del vehículo",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                if (conductorQR != null) {
+                    Text(
+                        text = "Patente ${conductorQR.patente}",
+                        fontSize = 14.sp,
+                        color = GrisOscuro
+                    )
+                }
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    thickness = 1.dp,
+                    color = Color.LightGray
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    BotonCirculo(Icons.Default.Call, "Llamar") {
+                        // llamar al conductor
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { mostrarDatos = false }) {
-                        Text("Cerrar", color = RojoBase)
+                    BotonCirculo(Icons.Default.QrCodeScanner, "Escanear QR del vehículo") {
+                        scanner.startScan()
+                            .addOnSuccessListener { barcode ->
+                                qrViewModel.guardarQR(barcode.rawValue.orEmpty())
+                                mostrarDatos = true
+                            }
+                            .addOnFailureListener { error ->
+                                Toast.makeText(
+                                    context,
+                                    "Error: ${error.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                     }
-                },
-                dismissButton = {
-                    //Solo si el QR es valido se ofrece el reclamo
-                    if (conductorQR != null) {
-                        TextButton(onClick = { abrirReclamoSernac(context) }) {
-                            Text("Reclamo SERNAC", color = RojoBase)
-                        }
+                    BotonCirculo(Icons.Default.Chat, "Mensaje") {
+                        // enviar mensaje
+                    }
+                    BotonCirculo(Icons.Default.Notifications, "Notificación") {
+                        // notificaciones
                     }
                 }
+            }
+        }
+
+        // Mis datos: texto y, al pulsar "Editar", se abren los campos
+        TarjetaBlanca(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .offset(y = (-16).dp)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "MIS DATOS",
+                        fontSize = 12.sp,
+                        letterSpacing = 4.sp,
+                        color = GrisOscuro
+                    )
+                    TextButton(
+                        onClick = {
+                            if (editando) registroViewModel.cancelarEdicion()
+                            editando = !editando
+                        }
+                    ) {
+                        Text(
+                            text = if (editando) "Cancelar" else "Editar",
+                            color = RojoBase,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+
+                if (!editando) {
+                    // Solo lectura
+                    FilaDato("Correo", registroViewModel.mail)
+                    FilaDato("Teléfono", registroViewModel.telefono)
+                    FilaDato("RUT", registroViewModel.rut)
+                    FilaDato("Región", registroViewModel.region)
+                    FilaDato("Comuna", registroViewModel.comuna)
+                    FilaDato("Dirección", registroViewModel.direccion)
+                } else {
+                    // Edición
+                    CampoPerfil("Nombres", registroViewModel.nombres) {
+                        registroViewModel.cambiarNombres(it)
+                    }
+                    CampoPerfil("Apellidos", registroViewModel.apellidos) {
+                        registroViewModel.cambiarApellidos(it)
+                    }
+                    CampoPerfil("RUT", registroViewModel.rut) {
+                        registroViewModel.cambiarRut(it)
+                    }
+                    CampoPerfil("Correo", registroViewModel.mail) {
+                        registroViewModel.cambiarCorreo(it)
+                    }
+                    CampoPerfil("Teléfono", registroViewModel.telefono) {
+                        registroViewModel.cambiarTelefono(it)
+                    }
+                    SelectorDesplegable(
+                        label = "Región",
+                        opciones = registroViewModel.regiones,
+                        seleccion = registroViewModel.region,
+                        onSeleccion = { registroViewModel.cambiarRegion(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = coloresCampo()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SelectorDesplegable(
+                        label = "Comuna",
+                        opciones = registroViewModel.comunas,
+                        seleccion = registroViewModel.comuna,
+                        onSeleccion = { registroViewModel.cambiarComuna(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = registroViewModel.region.isNotEmpty(),
+                        colors = coloresCampo()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CampoPerfil("Dirección", registroViewModel.direccion) {
+                        registroViewModel.cambiarDireccion(it)
+                    }
+                    CampoPerfil("Contraseña", registroViewModel.pass, esPassword = true) {
+                        registroViewModel.cambiarPass(it)
+                    }
+                    OutlinedTextField(
+                        value = registroViewModel.codigo,
+                        onValueChange = { registroViewModel.agregarCodigo(it) },
+                        label = { Text("Código trabajador (opcional)") },
+                        singleLine = true,
+                        isError = registroViewModel.errorCodigo,
+                        supportingText = {
+                            if (registroViewModel.errorCodigo) {
+                                Text("Código inválido", color = Color.Red)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = coloresCampo()
+                    )
+
+                    if (registroViewModel.errorPerfil.isNotEmpty()) {
+                        Text(
+                            text = registroViewModel.errorPerfil,
+                            color = Color.Red,
+                            fontSize = 13.sp
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            // guardarCambios valida y guarda todos los campos en la sesión
+                            if (registroViewModel.guardarCambios()) editando = false
+                        },
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = RojoBase)
+                    ) {
+                        Text(
+                            text = "Guardar",
+                            color = Color.White,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+        }
+
+        // Cerrar sesión: borra la cuenta activa y vuelve al login
+        OutlinedButton(
+            onClick = {
+                SesionManager.cerrarSesion()
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(navController.graph.id) { inclusive = true }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.dp, RojoBase),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = RojoBase)
+        ) {
+            Text(text = "Cerrar sesión", fontWeight = FontWeight.ExtraBold)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+
+
+    // Ventana con los datos del vehículo escaneado
+    if (mostrarDatos) {
+        AlertDialog(
+            onDismissRequest = { mostrarDatos = false },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    text = if (conductorQR == null) "QR no válido" else "Datos del vehículo",
+                    fontWeight = FontWeight.ExtraBold
+                )
+            },
+            text = {
+                if (conductorQR == null) {
+                    Text("Este QR no pertenece a un vehículo de Belmonte.")
+                } else {
+                    Column {
+                        Text("Conductor: ${conductorQR.nombre}")
+                        Text("RUT: ${conductorQR.rut}")
+                        Text("Vehículo: ${conductorQR.vehiculo}")
+                        Text("Patente: ${conductorQR.patente}")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { mostrarDatos = false }) {
+                    Text("Cerrar", color = RojoBase)
+                }
+            },
+            dismissButton = {
+                // Solo si el QR es válido se ofrece el reclamo
+                if (conductorQR != null) {
+                    TextButton(onClick = { abrirReclamoSernac(context) }) {
+                        Text("Reclamo SERNAC", color = RojoBase)
+                    }
+                }
+            }
+        )
+    }
+}
+
+
+// Botón redondo rojo con ícono
+@Composable
+private fun BotonCirculo(
+    icono: androidx.compose.ui.graphics.vector.ImageVector,
+    descripcion: String,
+    onClick: () -> Unit
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(44.dp)
+            .background(RojoBase, CircleShape)
+    ) {
+        Icon(imageVector = icono, contentDescription = descripcion, tint = Color.White)
+    }
+}
+
+// Un dato del resumen: valor grande y texto abajo
+@Composable
+private fun DatoResumen(
+    valor: String,
+    texto: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = valor, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+        Text(text = texto, fontSize = 13.sp, color = GrisOscuro)
+    }
+}
+
+// Fila de solo lectura: título a la izquierda y valor a la derecha
+@Composable
+private fun FilaDato(titulo: String, valor: String) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = titulo, fontSize = 14.sp, color = GrisOscuro)
+            Text(
+                text = if (valor.isBlank()) "-" else valor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.End,
+                modifier = Modifier.padding(start = 16.dp)
             )
         }
+        HorizontalDivider(color = Color.LightGray)
     }
+}
+
+// Campo de texto editable con el estilo de la app
+@Composable
+private fun CampoPerfil(
+    titulo: String,
+    valor: String,
+    esPassword: Boolean = false,
+    onCambio: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = valor,
+        onValueChange = onCambio,
+        label = { Text(titulo) },
+        singleLine = true,
+        visualTransformation = if (esPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = coloresCampo()
+    )
 }
 
 @Composable
@@ -703,7 +571,7 @@ fun FotoPerfil(
             }
         }
 
-        // Iconito de camara en la esquina
+        // Ícono de cámara en la esquina
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -716,7 +584,7 @@ fun FotoPerfil(
             Icon(
                 imageVector = Icons.Default.CameraAlt,
                 contentDescription = "Cambiar foto",
-                tint = Color(0xFFC8102E), // el rojo de tu app
+                tint = Color(0xFFC8102E),
                 modifier = Modifier.size(16.dp)
             )
         }

@@ -10,7 +10,7 @@ object Routes {
     const val ADMIN = "Administrador"
     const val MENU = "Menu"
     const val VIAJE = "Viaje"
-    const val CONFIGURACION = "Configuración"
+    const val MIS_VIAJES = "Mis viajes"
 
     //---- Pantallas del conductor ----
     const val VIAJES_DIA = "viajes_dia"
