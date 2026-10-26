@@ -143,18 +143,15 @@ class NuevoViajeViewModel: ViewModel() {
 
         return distancia >= 50
     }
-    fun reiniciarOrigen() {
+    fun reiniciarTodo() {
         _puntoOrigen = null
-        direccionOrigen = ""
-        estadoSeleccion =
-            EstadoSeleccion.SELECCIONAR_ORIGEN
-    }
-    fun reiniciarDestino() {
         _puntoDestino = null
+        marcadorOrigen = null
+        marcadorDestino = null
+        direccionOrigen = ""
         direccionDestino = ""
-
-        estadoSeleccion =
-            EstadoSeleccion.SELECCIONANDO_DESTINO
+        errorDistancia = null
+        estadoSeleccion = EstadoSeleccion.SELECCIONAR_ORIGEN
     }
 
 }

@@ -24,7 +24,7 @@ import com.example.belmonteapp.ui.theme.RojoBase
 import com.example.belmonteapp.viewModel.MenuViewModel
 import com.example.belmonteapp.viewModel.NuevoViajeViewModel
 import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.XYTileSource
+import androidx.compose.foundation.BorderStroke
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -224,8 +224,8 @@ fun NuevoViajeScreen(
 
                     EstadoSeleccion.LISTO -> {
 
-                        Text("📍 ${nuevoViajeViewModel.direccionOrigen}")
-                        Text("🏁 ${nuevoViajeViewModel.direccionDestino}")
+                        Text("📍 ${nuevoViajeViewModel.direccionOrigen}", color = Color.Black)
+                        Text("🏁 ${nuevoViajeViewModel.direccionDestino}", color = Color.Black)
                     }
 
                 }
@@ -243,28 +243,26 @@ fun NuevoViajeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 300.dp, end = 30.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween, // Separa los textos a los extremos
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp) // Separa los textos a los extremos
                 ) {
                     Button(
                         onClick = {
-                            navController.navigate(Routes.HOME)
+                            nuevoViajeViewModel.reiniciarTodo()
 
 
                         },
                         modifier = Modifier
-                            .padding(end = 24.dp, bottom = 24.dp)
-                            .offset(y = (-50).dp)
-                            .wrapContentWidth()
-                            .height(40.dp),
+                            .weight(1f)
+                            .height(48.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = RojoBase
-                        )
+                        border = BorderStroke(1.dp, RojoBase),
+                        colors = ButtonDefaults
+                            .outlinedButtonColors(contentColor = RojoBase)
                     ) {
                         Text(
                             text = "Cancelar",
-                            color = Color.White
+                            color = RojoBase
                         )
                     }
                     Button(
@@ -273,16 +271,13 @@ fun NuevoViajeScreen(
                                 nuevoViajeViewModel.construirViaje()?.let { viaje ->
                                     viajesViewModel.crearViaje(viaje) {
                                         Toast.makeText(context, "Viaje solicitado", Toast.LENGTH_SHORT).show()
-                                        navController.navigate(Routes.HOME)
                                     }
                                 }
                             }
                         },
                         modifier = Modifier
-                            .padding(end = 24.dp, bottom = 24.dp)
-                            .offset(y = (-50).dp)
-                            .wrapContentWidth()
-                            .height(40.dp),
+                            .weight(1f)
+                            .height(48.dp),
                         enabled = nuevoViajeViewModel.viajeValido(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
