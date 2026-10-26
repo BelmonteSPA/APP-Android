@@ -85,6 +85,7 @@ import com.example.belmonteapp.viewModel.ViajesViewModel
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.example.belmonteapp.modelo.EstadoViaje
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,7 +128,11 @@ fun PerfilScreen(
     val conductores by viajesViewModel.conductores.collectAsState()
     val conductorQR =
         if (contenidoQR.isEmpty()) null else conductores.find { it.patente == qrViewModel.patente() }
-
+    // Conductor del viaje del pasajero: en curso, o si no, el del último viaje
+    val viajes by viajesViewModel.viajes.collectAsState()
+    val viajeActual = viajesViewModel.viajeConConductor(viajes, cuenta?.rut.orEmpty())
+    val conductorViaje = conductores.find { it.id == viajeActual?.conductorId }
+    val enCurso = viajeActual?.estado == EstadoViaje.EN_CURSO
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -214,19 +219,19 @@ fun PerfilScreen(
         ) {
             Column(modifier = Modifier.padding(24.dp)) {
                 Text(
-                    text = "CONDUCTOR",
+                    text = if (enCurso) "CONDUCTOR · EN VIAJE" else "ÚLTIMO CONDUCTOR",
                     fontSize = 12.sp,
                     letterSpacing = 4.sp,
                     color = GrisOscuro
                 )
                 Text(
-                    text = conductorQR?.nombre ?: "Escanea el QR del vehículo",
+                    text = conductorViaje?.nombre ?: "Aún no tienes conductor",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
-                if (conductorQR != null) {
+                if (conductorViaje != null) {
                     Text(
-                        text = "Patente ${conductorQR.patente}",
+                        text = "${conductorViaje.vehiculo} · ${conductorViaje.patente}",
                         fontSize = 14.sp,
                         color = GrisOscuro
                     )
@@ -439,6 +444,26 @@ fun PerfilScreen(
                         Text("RUT: ${conductorQR.rut}")
                         Text("Vehículo: ${conductorQR.vehiculo}")
                         Text("Patente: ${conductorQR.patente}")
+
+                        // Verificación: ¿el vehículo escaneado es el de mi viaje?
+                        Spacer(modifier = Modifier.height(12.dp))
+                        when {
+                            conductorViaje == null -> Text(
+                                text = "No tienes un viaje con conductor asignado para comparar.",
+                                color = GrisOscuro,
+                                fontSize = 13.sp
+                            )
+                            conductorQR.id == conductorViaje.id -> Text(
+                                text = "✔ Es el conductor de tu viaje",
+                                color = Color(0xFF2E7D32),
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                            else -> Text(
+                                text = "⚠ Este vehículo NO corresponde a tu viaje",
+                                color = Color.Red,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
                     }
                 }
             },

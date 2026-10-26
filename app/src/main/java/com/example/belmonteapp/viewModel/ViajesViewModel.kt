@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 
 //lo usan las pantallas del conductor y del admin
@@ -104,9 +105,28 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             viajeRepository.actualizarViaje(actualizado)
         }
     }
-    /*
-    fun crearViaje (){
-        val nuevoViaje = Viajes(
-        )
-    }*/
+    //pasajero: guarda un viaje nuevo (PENDIENTE) y le asigna el siguiente codigo T-xxxx
+    fun crearViaje(viaje: Viajes, onGuardado: () -> Unit = {}) {
+        viewModelScope.launch {
+            //lee los viajes que hay ahora en Room y busca el numero de codigo mas alto
+            val existentes = viajeRepository.viajes.first()
+            val ultimo = (existentes.maxOfOrNull {
+                it.codigo.removePrefix("T-").toIntOrNull() ?: 0
+            } ?: 0).coerceAtLeast(1039)
+
+            viajeRepository.almacenarViaje(viaje.copy(codigo = "T-${ultimo + 1}"))
+            onGuardado()
+        }
+    }
+    //pasajero: viaje del cual mostrar el conductor (EN_CURSO, o si no, el ultimo)
+    fun viajeConConductor(viajes: List<Viajes>, rutPasajero: String): Viajes? {
+        if (rutPasajero.isBlank()) return null
+
+        val mios = viajes.filter { it.pasajeroRut == rutPasajero && it.conductorId != null }
+        val porFecha = compareBy<Viajes>({ it.fecha }, { it.hora })
+
+        return mios.firstOrNull { it.estado == EstadoViaje.EN_CURSO }
+            ?: mios.filter { it.estado == EstadoViaje.FINALIZADO }.maxWithOrNull(porFecha)
+            ?: mios.maxWithOrNull(porFecha)
+    }
 }

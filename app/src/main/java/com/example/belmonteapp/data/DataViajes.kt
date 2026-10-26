@@ -21,11 +21,11 @@ object DataViajes {
     private val LAS_CONDES = Lugar("Oficinas Las Condes, Av. Kennedy 5600, Las Condes", -33.4012, -70.5738)
     private val TORRE = Lugar("Torre Costanera, Av. Andrés Bello 2425, Providencia", -33.4173, -70.6064)
 
-    //El conductor con id 1 coincide con "conductor@belmonte.cl" de DataP
-    private val juan = Conductor(1, "Juan Pérez", "Hyundai H-1", "KDRT-42", "11.111.111-1")
-    private val pedro = Conductor(102, "Pedro Vidal", "Kia Carnival", "PLZK-07", "13.456.789-2")
-    private val carla = Conductor(103, "Carla Muñoz", "Toyota Hiace", "LRWP-18", "16.789.012-3")
-    private val rodrigo = Conductor(104, "Rodrigo Silva", "Hyundai Staria", "SDGH-33", "14.567.890-K")
+    //El conductor con "id" 1 coincide con "conductor@belmonte.cl" de DataP
+    private val juan = Conductor(1, "Juan Pérez", "Hyundai H-1", "KDRT-42", "11.111.111-1", "+56 9 5555 2001")
+    private val pedro = Conductor(102, "Pedro Vidal", "Kia Carnival", "PLZK-07", "13.456.789-2", "+56 9 5555 2002")
+    private val carla = Conductor(103, "Carla Muñoz", "Toyota Hiace", "LRWP-18", "16.789.012-3", "+56 9 5555 2003")
+    private val rodrigo = Conductor(104, "Rodrigo Silva", "Hyundai Staria", "SDGH-33", "14.567.890-K", "+56 9 5555 2004")
 
     fun conductores(): List<Conductor> {
         return listOf(juan, pedro, carla, rodrigo)
@@ -47,7 +47,8 @@ object DataViajes {
         conductor: Conductor? = null,
         vuelo: String = "",
         inicioHaceMin: Long = 0,
-        duracionMin: Long = 0
+        duracionMin: Long = 0,
+        rut: String = ""
     ): Viajes {
         val ahora = System.currentTimeMillis()
         val inicio = if (inicioHaceMin > 0) ahora - inicioHaceMin * 60_000 else 0L
@@ -78,8 +79,8 @@ object DataViajes {
     fun viajes(): List<Viajes> {
         return listOf(
             //Ayer
-            viaje("T-1040", -1, "08:10", SCL_T1, HOTEL, "Valentina Rojas", "+56 9 5555 1001",
-                EstadoViaje.FINALIZADO, pedro, "LA 801", 1500, 41),
+            viaje("T-1040", -1, "08:10", SCL_T1, HOTEL, "David Hernández", "+56 9 5555 1001",
+                EstadoViaje.FINALIZADO, pedro, "LA 801", 1500, 41, rut = "12.345.678-9"),
             viaje("T-1041", -1, "17:30", LAS_CONDES, SCL_T2, "Matías Castro", "+56 9 5555 1002",
                 EstadoViaje.FINALIZADO, carla, "", 1100, 35),
 
@@ -88,8 +89,8 @@ object DataViajes {
                 EstadoViaje.FINALIZADO, juan, "", 400, 38),
             viaje("T-1044", 0, "07:50", SCL_T1, HOTEL, "Isabel Mora", "+56 9 5555 1004",
                 EstadoViaje.FINALIZADO, carla, "LA 233", 300, 36),
-            viaje("T-1045", 0, "09:15", HOTEL, LAS_CONDES, "Camila Reyes", "+56 9 5555 1005",
-                EstadoViaje.EN_CURSO, juan, "", 18),
+            viaje("T-1045", 0, "09:15", HOTEL, LAS_CONDES, "David Hernández", "+56 9 5555 1005",
+                EstadoViaje.EN_CURSO, juan, "", 18, rut = "12.345.678-9"),
             viaje("T-1050", 0, "10:40", TORRE, HOTEL, "Paula Díaz", "+56 9 5555 1006",
                 EstadoViaje.EN_CURSO, rodrigo, "", 25),
             viaje("T-1048", 0, "11:20", SCL_T1, TORRE, "Diego Fuentes", "+56 9 7766 5544",

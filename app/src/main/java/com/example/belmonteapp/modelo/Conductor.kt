@@ -10,7 +10,8 @@ data class Conductor (
     val nombre : String,
     val vehiculo : String,
     val patente : String,
-    val rut : String = ""
+    val rut : String = "",
+    val telefono : String = ""
 ){
 
 }

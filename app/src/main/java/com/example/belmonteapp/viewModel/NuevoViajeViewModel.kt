@@ -9,6 +9,11 @@ import com.example.belmonteapp.modelo.EstadoSeleccion
 import android.content.Context
 import android.location.Geocoder
 import java.util.Locale
+import com.example.belmonteapp.data.SesionManager
+import com.example.belmonteapp.modelo.EstadoViaje
+import com.example.belmonteapp.modelo.Viajes
+import java.time.LocalDate
+import java.time.LocalTime
 
 
 class NuevoViajeViewModel: ViewModel() {
@@ -71,13 +76,28 @@ class NuevoViajeViewModel: ViewModel() {
             true
         }
     }
+    fun construirViaje(): Viajes? {
+        val cuenta = SesionManager.cuentaActual ?: return null
+        val origen = _puntoOrigen ?: return null
+        val destino = _puntoDestino ?: return null
 
-    fun agregarFecha(nuevaFecha: String){
-        fecha = nuevaFecha
+        return Viajes(
+            codigo = "",
+            fecha = LocalDate.now(),
+            hora = LocalTime.now().withSecond(0).withNano(0),
+            origen = direccionOrigen,
+            destino = direccionDestino,
+            latitudOrigen = origen.latitude,
+            longitudOrigen = origen.longitude,
+            latitudDestino = destino.latitude,
+            longitudDestino = destino.longitude,
+            pasajeroNombre = "${cuenta.nombres} ${cuenta.apellidos}",
+            pasajeroTelefono = cuenta.telefono,
+            pasajeroRut = cuenta.rut,
+            estado = EstadoViaje.PENDIENTE
+        )
     }
-    fun agregarHora(nuevaHora: String){
-        hora = nuevaHora
-    }
+
     private fun obtenerDireccion(
         context: Context,
         punto: GeoPoint

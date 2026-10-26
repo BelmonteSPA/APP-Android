@@ -33,13 +33,15 @@ import com.example.belmonteapp.R
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import androidx.core.graphics.toColorInt
+import android.widget.Toast
+import com.example.belmonteapp.viewModel.ViajesViewModel
 
 @Composable
 fun NuevoViajeScreen(
     navController: NavController,
     menuViewModel: MenuViewModel = viewModel(),
-    nuevoViajeViewModel: NuevoViajeViewModel = viewModel()
+    nuevoViajeViewModel: NuevoViajeViewModel = viewModel(),
+    viajesViewModel: ViajesViewModel = viewModel()
 ) {
     var mapView by remember { mutableStateOf<MapView?>(null) }
     val context = LocalContext.current
@@ -268,7 +270,12 @@ fun NuevoViajeScreen(
                     Button(
                         onClick = {
                             if (nuevoViajeViewModel.viajeValido()) {
-                                navController.navigate(Routes.HOME)
+                                nuevoViajeViewModel.construirViaje()?.let { viaje ->
+                                    viajesViewModel.crearViaje(viaje) {
+                                        Toast.makeText(context, "Viaje solicitado", Toast.LENGTH_SHORT).show()
+                                        navController.navigate(Routes.HOME)
+                                    }
+                                }
                             }
                         },
                         modifier = Modifier
