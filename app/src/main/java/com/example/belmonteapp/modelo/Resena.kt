@@ -7,7 +7,7 @@ import androidx.room3.PrimaryKey
     tableName = "resena",
     indices = [Index(value = ["viajeId"], unique = true)]
 )
-data class Reseña(
+data class Resena(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val viajeId: Int,

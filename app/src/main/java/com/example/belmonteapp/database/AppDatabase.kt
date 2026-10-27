@@ -9,18 +9,20 @@ import com.example.belmonteapp.dao.ConductorDao
 import com.example.belmonteapp.dao.ViajeDao
 import com.example.belmonteapp.modelo.Conductor
 import com.example.belmonteapp.modelo.Viajes
+import com.example.belmonteapp.dao.ResenaDao
+import com.example.belmonteapp.modelo.Resena
 
 
 @Database(
-    entities = [Viajes::class, Conductor::class],
-    version = 4,
+    entities = [Viajes::class, Conductor::class, Resena::class],
+    version = 5,
     exportSchema = false
 )
 @ColumnTypeConverters (Converters::class)
 abstract class AppDatabase : RoomDatabase(){
     abstract fun viajeDao() : ViajeDao
     abstract fun conductorDao() : ConductorDao
-
+    abstract fun resenaDao() : ResenaDao
     companion object {
         @Volatile
         private var INSTANCE : AppDatabase? = null
