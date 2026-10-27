@@ -88,6 +88,8 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.example.belmonteapp.modelo.EstadoViaje
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.runtime.mutableIntStateOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,6 +155,20 @@ fun PerfilScreen(
     val ultimoViaje = viajesViewModel.ultimoViajeFinalizado(viajes, cuenta?.rut.orEmpty())
     Log.d("PERFIL", "rut=${cuenta?.rut} | viajes=${viajes.size} | mios=${viajes.count { it.pasajeroRut == cuenta?.rut }} | conductores=${conductores.size}")
     Log.d("PERFIL", "cuentaRut='${cuenta?.rut}' | ruts en BD=${viajes.map { it.pasajeroRut }.distinct()} | total=${viajes.size}")
+    // Reseñas: ¿ya evalué mi último viaje finalizado?
+    val resenas by viajesViewModel.resenas.collectAsState()
+    val yaEvaluado = ultimoViaje != null && resenas.any { it.viajeId == ultimoViaje.id }
+
+    var mostrarResena by remember { mutableStateOf(false) }
+    var estrellas by remember { mutableIntStateOf(0) }
+    var comentario by remember { mutableStateOf("") }
+
+    val abrirResena = {
+        estrellas = 0
+        comentario = ""
+        mostrarResena = true
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -320,8 +336,16 @@ fun PerfilScreen(
                                 ).show()
                             }
                     }
-                    BotonCirculo(Icons.Default.Chat, "Mensaje") {
-                        // enviar mensaje
+                    BotonCirculo(Icons.Default.Star, "Evaluar conductor") {
+                        when {
+                        ultimoViaje == null -> Toast.makeText(
+                            context, "Aún no tienes viajes finalizados para evaluar", Toast.LENGTH_SHORT
+                        ).show()
+                        yaEvaluado -> Toast.makeText(
+                            context, "Ya evaluaste tu último viaje", Toast.LENGTH_SHORT
+                        ).show()
+                        else -> abrirResena()
+                    }
                     }
                     BotonCirculo(Icons.Default.Notifications, "Notificación") {
                         mostrarAviso = true
@@ -541,6 +565,7 @@ fun PerfilScreen(
 
         )
     }
+    //mensaje notificación
     if (mostrarAviso) {
         AlertDialog(
             onDismissRequest = { mostrarAviso = false },
@@ -554,6 +579,80 @@ fun PerfilScreen(
             confirmButton = {
                 TextButton(onClick = { mostrarAviso = false }) {
                     Text("Cerrar", color = RojoBase)
+                }
+            },
+            dismissButton = {
+                if (viajeActual?.estado == EstadoViaje.FINALIZADO && ultimoViaje != null && !yaEvaluado) {
+                    TextButton(onClick = {
+                        mostrarAviso = false
+                        abrirResena()
+                    }) {
+                        Text("Evaluar", color = RojoBase)
+                    }
+                }
+            }
+        )
+    }
+    //mensaje de evaluación a conductor
+    if (mostrarResena && ultimoViaje != null) {
+        AlertDialog(
+            onDismissRequest = { mostrarResena = false },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    text = "Evalúa a ${ultimoViaje.conductorNombre}",
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black
+                )
+            },
+            text = {
+                Column {
+                    Text("Viaje ${ultimoViaje.codigo}", color = GrisOscuro, fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (n in 1..5) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "$n estrellas",
+                                tint = if (n <= estrellas) Color(0xFFFFB300) else Color.LightGray,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clickable { estrellas = n }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = comentario,
+                        onValueChange = { if (it.length <= 200) comentario = it },
+                        label = { Text("Comentario (opcional)") },
+                        minLines = 2,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = coloresCampo(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = estrellas > 0,
+                    onClick = {
+                        viajesViewModel.enviarResena(ultimoViaje, estrellas, comentario) {
+                            mostrarResena = false
+                            Toast.makeText(context, "¡Gracias por tu evaluación!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "Enviar",
+                        color = if (estrellas > 0) RojoBase else GrisOscuro,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarResena = false }) {
+                    Text("Cancelar", color = GrisOscuro)
                 }
             }
         )

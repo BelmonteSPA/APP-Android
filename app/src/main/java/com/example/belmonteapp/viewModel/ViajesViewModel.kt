@@ -19,14 +19,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import android.location.Location
+import com.example.belmonteapp.modelo.Resena
+import com.example.belmonteapp.repository.ResenaRepository
 
 
 //lo usan las pantallas del conductor y del admin
 class ViajesViewModel (application: Application) : AndroidViewModel(application){
 
     private val viajeRepository : ViajeRepository
-    private val conductorRepository : ConductorRepository
 
+    val resenas : StateFlow<List<Resena>>
     val MisViajes  by mutableStateOf("")
 
     val viajes : StateFlow<List<Viajes>>
@@ -36,9 +38,15 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
     //si no hay sesion se usa el 1 para poder probar
     val conductorId : Int
         get() = SesionManager.cuentaActual?.id ?: 1
+    val conductorRepository : ConductorRepository
+    private val _resenaRepository : ResenaRepository
+
+
+
 
     init {
         val database = AppDatabase.getDatabase(application)
+
 
         viajeRepository = ViajeRepository(database.viajeDao())
         conductorRepository = ConductorRepository(database.conductorDao())
@@ -56,6 +64,13 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         )
 
         cargarDatosDePrueba()
+        _resenaRepository = ResenaRepository(database.resenaDao())
+
+        resenas = _resenaRepository.resenas.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     }
 
     //la primera vez que se abre la app, esta vacia y se llena con datos fake
@@ -149,4 +164,32 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         )
         return resultado[0] / 1000.0
     }
+    //pasajero: evalua un viaje FINALIZADO (una sola vez por viaje)
+    fun enviarResena(viaje: Viajes, estrellas: Int, comentario: String, onListo: () -> Unit = {}) {
+        val conductorId = viaje.conductorId ?: return
+        if (viaje.estado != EstadoViaje.FINALIZADO || estrellas !in 1..5) return
+
+        viewModelScope.launch {
+            val yaExiste = _resenaRepository.resenas.first().any { it.viajeId == viaje.id }
+            if (yaExiste) return@launch
+
+            val guardada = try {
+                _resenaRepository.almacenarResena(
+                    Resena(
+                        viajeId = viaje.id,
+                        conductorId = conductorId,
+                        pasajeroRut = viaje.pasajeroRut,
+                        estrellas = estrellas,
+                        comentario = comentario.trim()
+                    )
+                )
+                true
+            } catch (e: Exception) {
+                false
+            }
+
+            if (guardada) onListo()
+        }
+    }
+
 }

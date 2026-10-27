@@ -295,6 +295,7 @@ fun NuevoViajeScreen(
                                 nuevoViajeViewModel.construirViaje()?.let { viaje ->
                                     viajesViewModel.crearViaje(viaje) {
                                         Toast.makeText(context, "Viaje solicitado", Toast.LENGTH_SHORT).show()
+                                        nuevoViajeViewModel.reiniciarTodo()
                                     }
                                 }
                             }
