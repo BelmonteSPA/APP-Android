@@ -177,7 +177,7 @@ fun PerfilScreen(
     ) {
         // Encabezado: volver, foto y nombre completo
         CabeceraRoja(
-            alto = 280.dp
+            alto = 300.dp
         ) {
             Text(
                 text = "PERFIL",
