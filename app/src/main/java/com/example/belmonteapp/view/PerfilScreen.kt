@@ -135,6 +135,20 @@ fun PerfilScreen(
     val viajeActual = viajesViewModel.viajeConConductor(viajes, cuenta?.rut.orEmpty())
     val conductorViaje = conductores.find { it.id == viajeActual?.conductorId }
     val enCurso = viajeActual?.estado == EstadoViaje.EN_CURSO
+
+    // Aviso del botón Notificación
+    var mostrarAviso by remember { mutableStateOf(false) }
+    val mensajeAviso = when {
+        viajeActual == null || conductorViaje == null ->
+            "Aún no tienes viajes con conductor"
+        viajeActual.estado == EstadoViaje.EN_CURSO ->
+            "Tu viaje está en curso con ${conductorViaje.nombre}"
+        viajeActual.estado == EstadoViaje.FINALIZADO ->
+            "Tu viaje terminó. ¿Quieres evaluar a ${conductorViaje.nombre}?"
+        else ->
+            "${conductorViaje.nombre} fue asignado a tu viaje. Patente ${conductorViaje.patente}"
+    }
+
     // Último viaje terminado, para la card Resumen
     val ultimoViaje = viajesViewModel.ultimoViajeFinalizado(viajes, cuenta?.rut.orEmpty())
     Log.d("PERFIL", "rut=${cuenta?.rut} | viajes=${viajes.size} | mios=${viajes.count { it.pasajeroRut == cuenta?.rut }} | conductores=${conductores.size}")
@@ -310,7 +324,7 @@ fun PerfilScreen(
                         // enviar mensaje
                     }
                     BotonCirculo(Icons.Default.Notifications, "Notificación") {
-                        // notificaciones
+                        mostrarAviso = true
                     }
                 }
             }
@@ -522,6 +536,24 @@ fun PerfilScreen(
                     TextButton(onClick = { abrirReclamoSernac(context) }) {
                         Text("Reclamo SERNAC", color = RojoBase)
                     }
+                }
+            }
+
+        )
+    }
+    if (mostrarAviso) {
+        AlertDialog(
+            onDismissRequest = { mostrarAviso = false },
+            containerColor = Color.White,
+            title = {
+                Text(text = "Notificación", fontWeight = FontWeight.ExtraBold, color = Color.Black)
+            },
+            text = {
+                Text(text = mensajeAviso, color = Color.Black)
+            },
+            confirmButton = {
+                TextButton(onClick = { mostrarAviso = false }) {
+                    Text("Cerrar", color = RojoBase)
                 }
             }
         )
