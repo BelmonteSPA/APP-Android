@@ -3,6 +3,11 @@ package com.example.belmonteapp.data
 import com.example.belmonteapp.modelo.Conductor
 import com.example.belmonteapp.modelo.EstadoViaje
 import com.example.belmonteapp.modelo.Viajes
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -117,6 +122,8 @@ object DataViajes {
             //Pasado mañana
             viaje("T-1056", 2, "07:15", HOTEL, SCL_T1, "Camila Reyes", "+56 9 5555 1005",
                 EstadoViaje.PENDIENTE, null, "LA 800")
-        )
+        ).mapIndexed { index, viaje -> viaje.copy(id = index + 1) }
     }
+
+
 }

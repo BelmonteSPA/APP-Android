@@ -31,5 +31,18 @@ data class Viajes (
     val terminoMillis : Long = 0 //momento en que finaliza el viaje
 
 ){
+    // Función para evaluar si este viaje coincide con el texto buscado
+    fun coincideConBusqueda(query: String): Boolean {
+        if (query.isBlank()) return true
 
+        val q = query.trim()
+        return codigo.contains(q, ignoreCase = true) ||
+                origen.contains(q, ignoreCase = true) ||
+                destino.contains(q, ignoreCase = true) ||
+                pasajeroNombre.contains(q, ignoreCase = true) ||
+                pasajeroRut.contains(q, ignoreCase = true) ||
+                conductorNombre.contains(q, ignoreCase = true) ||
+                numeroVuelo.contains(q, ignoreCase = true) ||
+                estado.name.contains(q, ignoreCase = true)
+    }
 }
