@@ -98,15 +98,26 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         }
     }
 
-    //conductor ASIGNADO -> EN_CURSO
-    fun iniciarViaje (viaje : Viajes){
-        val actualizado = viaje.copy(
-            estado = EstadoViaje.EN_CURSO,
-            inicioMillis = System.currentTimeMillis()
-        )
-
+        //Conductor: ASIGNADO -> EN_CURSO, solo si no tiene otro viaje EN_CURSO.
+    //onIniciado se ejecuta cuando el cambio ya quedo guardado en la base de datos.
+    fun iniciarViaje(viaje: Viajes, onIniciado: () -> Unit = {}) {
         viewModelScope.launch {
+            //Se revisa en la base de datos (no en la pantalla) si ya tiene un viaje en curso
+            val tieneOtroEnCurso = viajeRepository.viajes.first().any {
+                it.conductorId == viaje.conductorId &&
+                        it.estado == EstadoViaje.EN_CURSO &&
+                        it.id != viaje.id
+            }
+            if (tieneOtroEnCurso) return@launch
+
+            val actualizado = viaje.copy(
+                estado = EstadoViaje.EN_CURSO,
+                inicioMillis = System.currentTimeMillis()
+            )
             viajeRepository.actualizarViaje(actualizado)
+
+            //Recien aqui se avisa a la pantalla que puede navegar
+            onIniciado()
         }
     }
 
