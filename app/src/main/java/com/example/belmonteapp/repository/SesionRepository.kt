@@ -2,13 +2,15 @@ package com.example.belmonteapp.repository
 
 import com.example.belmonteapp.dao.SesionDao
 import com.example.belmonteapp.modelo.Sesion
+import com.example.belmonteapp.remote.ApiService
 import com.example.belmonteapp.remote.LoginRequest
 import com.example.belmonteapp.remote.RetrofitClient
 
+//api: por defecto el de Retrofit; en las pruebas se entrega un ApiService simulado (MockK)
 class SesionRepository(
-    private val sesionDao: SesionDao
+    private val sesionDao: SesionDao,
+    private val api: ApiService = RetrofitClient.api
 ) {
-    private val api = RetrofitClient.api
 
     //Login contra ms-auth (a traves del gateway) y guarda el token en Room.
     //Lanza HttpException si la clave es incorrecta (401) o IOException si el servidor no responde.

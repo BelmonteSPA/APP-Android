@@ -3,6 +3,7 @@ package com.example.belmonteapp.repository
 import com.example.belmonteapp.dao.SesionDao
 import com.example.belmonteapp.dao.ViajeDao
 import com.example.belmonteapp.modelo.Viajes
+import com.example.belmonteapp.remote.ApiService
 import com.example.belmonteapp.remote.AsignarRequest
 import com.example.belmonteapp.remote.RetrofitClient
 import com.example.belmonteapp.remote.aNuevoViajeRequest
@@ -11,11 +12,12 @@ import kotlinx.coroutines.flow.Flow
 
 //Las pantallas siempre leen de Room. Si hay sesion con el backend, los cambios se envian
 //primero a ms-viajes (Retrofit) y lo que responde se guarda en Room.
+//api: por defecto el de Retrofit; en las pruebas se entrega un ApiService simulado (MockK)
 class ViajeRepository (
     private val viajeDao: ViajeDao,
-    private val sesionDao: SesionDao
+    private val sesionDao: SesionDao,
+    private val api: ApiService = RetrofitClient.api
 ){
-    private val api = RetrofitClient.api
 
     val viajes : Flow<List<Viajes>> = viajeDao.obtenerViajes()
 

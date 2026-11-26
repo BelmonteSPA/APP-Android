@@ -83,4 +83,16 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+
+    // Pruebas unitarias (src/test): Kotest + JUnit 5 + MockK + corrutinas
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+}
+
+// Obligatorio para usar JUnit 5 (Kotest corre sobre JUnit 5)
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
