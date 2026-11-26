@@ -225,7 +225,12 @@ fun ViajeEnCursoScreen(
                         .padding(24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
+                    //weight(1f): el nombre usa el espacio que sobra y, si es largo, baja de linea
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 16.dp)
+                    ) {
                         Text(text = "Pasajero", fontSize = 13.sp, color = Gris)
                         Text(
                             text = viaje.pasajeroNombre,
@@ -233,7 +238,8 @@ fun ViajeEnCursoScreen(
                             fontWeight = FontWeight.ExtraBold
                         )
                     }
-                    Column {
+                    //La hora de inicio queda siempre a la derecha con su ancho natural
+                    Column(horizontalAlignment = Alignment.End) {
                         Text(text = "Inicio", fontSize = 13.sp, color = Gris)
                         Text(
                             text = Fechas.horaDeMillis(viaje.inicioMillis),
