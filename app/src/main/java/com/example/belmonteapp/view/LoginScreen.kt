@@ -158,13 +158,22 @@ fun LoginScreen(
                     visualTransformation = PasswordVisualTransformation(),
                     shape = RoundedCornerShape(12.dp)
                 )
+
+                //Mensaje si el correo o la clave no son correctos
+                if (loginViewModel.textoVisible) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Correo o contraseña incorrectos",
+                        color = RojoBase,
+                        fontSize = 14.sp
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
-                        loginViewModel.textoVisible = false
-                        val validador = SesionManager.iniciarSesion(loginViewModel.mail, loginViewModel.pass)
-
-                        if (validador) {
+                        //el ViewModel intenta el login en el backend (o local si no hay servidor)
+                        loginViewModel.iniciarSesion {
                             //cada rol entra a su pantalla principal
                             val destino = when (SesionManager.cuentaActual?.tipo) {
                                 Tipo.CONDUCTOR -> Routes.VIAJES_DIA
@@ -174,10 +183,10 @@ fun LoginScreen(
                             navController.navigate(destino) {
                                 popUpTo(Routes.HOME) { inclusive = true }
                             }
-                        } else {
-                            loginViewModel.textoVisible = true
                         }
                     },
+                    //se desactiva mientras espera la respuesta del servidor
+                    enabled = !loginViewModel.cargando,
                     modifier = Modifier
                         .padding(top = 12.dp)
                         .fillMaxWidth().height(50.dp),
@@ -187,7 +196,7 @@ fun LoginScreen(
                     )
                 ){
                     Text(
-                        text = "Ingresar",
+                        text = if (loginViewModel.cargando) "Ingresando..." else "Ingresar",
                         color = Color.White
                     )
                 }
