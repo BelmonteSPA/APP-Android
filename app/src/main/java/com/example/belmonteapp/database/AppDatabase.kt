@@ -6,16 +6,18 @@ import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import com.example.belmonteapp.dao.ConductorDao
+import com.example.belmonteapp.dao.ResenaDao
+import com.example.belmonteapp.dao.SesionDao
 import com.example.belmonteapp.dao.ViajeDao
 import com.example.belmonteapp.modelo.Conductor
-import com.example.belmonteapp.modelo.Viajes
-import com.example.belmonteapp.dao.ResenaDao
 import com.example.belmonteapp.modelo.Resena
+import com.example.belmonteapp.modelo.Sesion
+import com.example.belmonteapp.modelo.Viajes
 
 
 @Database(
-    entities = [Viajes::class, Conductor::class, Resena::class],
-    version = 5,
+    entities = [Viajes::class, Conductor::class, Resena::class, Sesion::class],
+    version = 6,
     exportSchema = false
 )
 @ColumnTypeConverters (Converters::class)
@@ -23,6 +25,7 @@ abstract class AppDatabase : RoomDatabase(){
     abstract fun viajeDao() : ViajeDao
     abstract fun conductorDao() : ConductorDao
     abstract fun resenaDao() : ResenaDao
+    abstract fun sesionDao() : SesionDao
     companion object {
         @Volatile
         private var INSTANCE : AppDatabase? = null
