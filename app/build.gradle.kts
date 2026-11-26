@@ -80,4 +80,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
 
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 }
