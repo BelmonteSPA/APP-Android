@@ -3,11 +3,6 @@ package com.example.belmonteapp.data
 import com.example.belmonteapp.modelo.Conductor
 import com.example.belmonteapp.modelo.EstadoViaje
 import com.example.belmonteapp.modelo.Viajes
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -26,11 +21,12 @@ object DataViajes {
     private val LAS_CONDES = Lugar("Oficinas Las Condes, Av. Kennedy 5600, Las Condes", -33.4012, -70.5738)
     private val TORRE = Lugar("Torre Costanera, Av. Andrés Bello 2425, Providencia", -33.4173, -70.6064)
 
-    //El conductor con "id" 1 coincide con "conductor@belmonte.cl" de DataP
+    //Los ids 1..4 son los mismos de ms-conductores en el backend.
+    //El "id" 1 coincide con "conductor@belmonte.cl" de DataP
     private val juan = Conductor(1, "Juan Pérez", "Hyundai H-1", "KDRT-42", "11.111.111-1", "+56 9 5555 2001")
-    private val pedro = Conductor(102, "Pedro Vidal", "Kia Carnival", "PLZK-07", "13.456.789-2", "+56 9 5555 2002")
-    private val carla = Conductor(103, "Carla Muñoz", "Toyota Hiace", "LRWP-18", "16.789.012-3", "+56 9 5555 2003")
-    private val rodrigo = Conductor(104, "Rodrigo Silva", "Hyundai Staria", "SDGH-33", "14.567.890-K", "+56 9 5555 2004")
+    private val pedro = Conductor(2, "Pedro Vidal", "Kia Carnival", "PLZK-07", "13.456.789-2", "+56 9 5555 2002")
+    private val carla = Conductor(3, "Carla Muñoz", "Toyota Hiace", "LRWP-18", "16.789.012-3", "+56 9 5555 2003")
+    private val rodrigo = Conductor(4, "Rodrigo Silva", "Hyundai Staria", "SDGH-33", "14.567.890-K", "+56 9 5555 2004")
 
     fun conductores(): List<Conductor> {
         return listOf(juan, pedro, carla, rodrigo)

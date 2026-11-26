@@ -93,9 +93,11 @@ fun DetalleViajeScreen(
                     }
                     Button(
                         onClick = {
-                            viajesViewModel.iniciarViaje(viaje)
-                            navController.navigate(Routes.viajeEnCurso(viaje.id)) {
-                                popUpTo(Routes.DETALLE_VIAJE) { inclusive = true }
+                            //navega recien cuando el servidor confirmo el cambio
+                            viajesViewModel.iniciarViaje(viaje) {
+                                navController.navigate(Routes.viajeEnCurso(viaje.id)) {
+                                    popUpTo(Routes.DETALLE_VIAJE) { inclusive = true }
+                                }
                             }
                         },
                         //Solo se puede iniciar si no hay otro viaje en curso

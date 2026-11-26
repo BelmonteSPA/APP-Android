@@ -124,9 +124,11 @@ fun ViajeEnCursoScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = {
-                        viajesViewModel.finalizarViaje(viaje)
-                        navController.navigate(Routes.viajeFinalizado(viaje.id)) {
-                            popUpTo(Routes.VIAJE_EN_CURSO) { inclusive = true }
+                        //navega recien cuando el servidor confirmo el cambio
+                        viajesViewModel.finalizarViaje(viaje) {
+                            navController.navigate(Routes.viajeFinalizado(viaje.id)) {
+                                popUpTo(Routes.VIAJE_EN_CURSO) { inclusive = true }
+                            }
                         }
                     },
                     modifier = Modifier

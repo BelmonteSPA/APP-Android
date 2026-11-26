@@ -75,8 +75,10 @@ fun AsignarConductorScreen(
                 Button(
                     onClick = {
                         seleccionado?.let { conductor ->
-                            viajesViewModel.asignarConductor(viaje, conductor)
-                            navController.popBackStack()
+                            //vuelve atras recien cuando el servidor confirmo el cambio
+                            viajesViewModel.asignarConductor(viaje, conductor) {
+                                navController.popBackStack()
+                            }
                         }
                     },
                     enabled = seleccionado != null,

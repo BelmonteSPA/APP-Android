@@ -42,14 +42,11 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
     private val _resenaRepository : ResenaRepository
 
 
-
-
     init {
         val database = AppDatabase.getDatabase(application)
 
-
-        viajeRepository = ViajeRepository(database.viajeDao())
-        conductorRepository = ConductorRepository(database.conductorDao())
+        viajeRepository = ViajeRepository(database.viajeDao(), database.sesionDao())
+        conductorRepository = ConductorRepository(database.conductorDao(), database.sesionDao())
 
         viajes = viajeRepository.viajes.stateIn(
             scope = viewModelScope,
@@ -63,7 +60,7 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             initialValue = emptyList()
         )
 
-        cargarDatosDePrueba()
+        cargarDatos()
         _resenaRepository = ResenaRepository(database.resenaDao())
 
         resenas = _resenaRepository.resenas.stateIn(
@@ -73,20 +70,37 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         )
     }
 
-    //la primera vez que se abre la app, esta vacia y se llena con datos fake
-    private fun cargarDatosDePrueba(){
+    //Con servidor: descarga los viajes del backend.
+    //Sin servidor: la primera vez llena Room con datos fake.
+    private fun cargarDatos(){
         viewModelScope.launch {
             if (conductorRepository.contarConductores() == 0){
                 conductorRepository.almacenarConductores(DataViajes.conductores())
             }
-            if (viajeRepository.contarViajes() == 0){
+            if (viajeRepository.hayServidor()) {
+                sincronizar()
+            } else if (viajeRepository.contarViajes() == 0){
                 viajeRepository.almacenarViajes(DataViajes.viajes())
             }
         }
     }
 
+    //Vuelve a pedir los viajes al backend (si falla se queda con lo que hay en Room)
+    fun sincronizar() {
+        viewModelScope.launch {
+            try {
+                viajeRepository.sincronizar(SesionManager.cuentaActual?.rut ?: "")
+                conductorRepository.sincronizar()
+            } catch (e: Exception) {
+                //sin conexion: se siguen mostrando los datos guardados
+            }
+        }
+    }
+
     //admin: asigna o cambia el conductor y el viaje queda ASIGNADO
-    fun asignarConductor (viaje : Viajes, conductor : Conductor){
+    //onListo: la pantalla navega recien cuando el cambio quedo guardado
+    //(si navega antes, el ViewModel se destruye y se cancela la llamada al servidor)
+    fun asignarConductor (viaje : Viajes, conductor : Conductor, onListo: () -> Unit = {}){
         val actualizado = viaje.copy(
             conductorId = conductor.id,
             conductorNombre = conductor.nombre,
@@ -94,11 +108,21 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         )
 
         viewModelScope.launch {
-            viajeRepository.actualizarViaje(actualizado)
+            if (viajeRepository.hayServidor()) {
+                try {
+                    viajeRepository.asignarEnServidor(viaje, conductor.id)
+                } catch (e: Exception) {
+                    //el servidor rechazo el cambio o no respondio: no se modifica nada
+                    return@launch
+                }
+            } else {
+                viajeRepository.actualizarViaje(actualizado)
+            }
+            onListo()
         }
     }
 
-        //Conductor: ASIGNADO -> EN_CURSO, solo si no tiene otro viaje EN_CURSO.
+    //Conductor: ASIGNADO -> EN_CURSO, solo si no tiene otro viaje EN_CURSO.
     //onIniciado se ejecuta cuando el cambio ya quedo guardado en la base de datos.
     fun iniciarViaje(viaje: Viajes, onIniciado: () -> Unit = {}) {
         viewModelScope.launch {
@@ -110,31 +134,61 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             }
             if (tieneOtroEnCurso) return@launch
 
-            val actualizado = viaje.copy(
-                estado = EstadoViaje.EN_CURSO,
-                inicioMillis = System.currentTimeMillis()
-            )
-            viajeRepository.actualizarViaje(actualizado)
+            if (viajeRepository.hayServidor()) {
+                try {
+                    viajeRepository.iniciarEnServidor(viaje)
+                } catch (e: Exception) {
+                    return@launch
+                }
+            } else {
+                val actualizado = viaje.copy(
+                    estado = EstadoViaje.EN_CURSO,
+                    inicioMillis = System.currentTimeMillis()
+                )
+                viajeRepository.actualizarViaje(actualizado)
+            }
 
             //Recien aqui se avisa a la pantalla que puede navegar
             onIniciado()
         }
     }
 
-    //conductor EN_CURSO -> FINALIZADO
-    fun finalizarViaje (viaje : Viajes){
+    //conductor EN_CURSO -> FINALIZADO (onListo igual que en asignarConductor)
+    fun finalizarViaje (viaje : Viajes, onListo: () -> Unit = {}){
         val actualizado = viaje.copy(
             estado = EstadoViaje.FINALIZADO,
             terminoMillis = System.currentTimeMillis()
         )
 
         viewModelScope.launch {
-            viajeRepository.actualizarViaje(actualizado)
+            if (viajeRepository.hayServidor()) {
+                try {
+                    viajeRepository.finalizarEnServidor(viaje)
+                } catch (e: Exception) {
+                    //no se modifica nada
+                    return@launch
+                }
+            } else {
+                viajeRepository.actualizarViaje(actualizado)
+            }
+            onListo()
         }
     }
+
     //pasajero: guarda un viaje nuevo (PENDIENTE) y le asigna el siguiente codigo T-xxxx
     fun crearViaje(viaje: Viajes, onGuardado: () -> Unit = {}) {
         viewModelScope.launch {
+            if (viajeRepository.hayServidor()) {
+                //el backend le asigna el id; el codigo se arma con ese id
+                try {
+                    viajeRepository.crearEnServidor(viaje)
+                } catch (e: Exception) {
+                    return@launch
+                }
+                onGuardado()
+                return@launch
+            }
+
             //lee los viajes que hay ahora en Room y busca el numero de codigo mas alto
             val existentes = viajeRepository.viajes.first()
             val ultimo = (existentes.maxOfOrNull {
@@ -145,6 +199,7 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             onGuardado()
         }
     }
+
     //pasajero: viaje del cual mostrar el conductor (EN_CURSO, o si no, el ultimo)
     fun viajeConConductor(viajes: List<Viajes>, rutPasajero: String): Viajes? {
         if (rutPasajero.isBlank()) return null
@@ -156,6 +211,7 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
             ?: mios.filter { it.estado == EstadoViaje.FINALIZADO }.maxWithOrNull(porFecha)
             ?: mios.maxWithOrNull(porFecha)
     }
+
     //pasajero: su viaje FINALIZADO mas reciente
     fun ultimoViajeFinalizado(viajes: List<Viajes>, rutPasajero: String): Viajes? {
         if (rutPasajero.isBlank()) return null
@@ -175,6 +231,7 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         )
         return resultado[0] / 1000.0
     }
+
     //pasajero: evalua un viaje FINALIZADO (una sola vez por viaje)
     fun enviarResena(viaje: Viajes, estrellas: Int, comentario: String, onListo: () -> Unit = {}) {
         val conductorId = viaje.conductorId ?: return

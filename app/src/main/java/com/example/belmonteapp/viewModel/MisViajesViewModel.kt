@@ -17,7 +17,8 @@ import com.example.belmonteapp.data.SesionManager
 
 class MisViajesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val viajeRepository = ViajeRepository(AppDatabase.getDatabase(application).viajeDao())
+    private val database = AppDatabase.getDatabase(application)
+    private val viajeRepository = ViajeRepository(database.viajeDao(), database.sesionDao())
 
     // Estado para el texto del buscador
     val textoBusqueda = MutableStateFlow("")
@@ -28,13 +29,13 @@ class MisViajesViewModel(application: Application) : AndroidViewModel(applicatio
 
     init {
         viewModelScope.launch {
-            if (viajeRepository.contarViajes() == 0) {
+            //con servidor los viajes ya se descargaron en el login; sin servidor se usan los de prueba
+            if (!viajeRepository.hayServidor() && viajeRepository.contarViajes() == 0) {
                 viajeRepository.almacenarViajes(DataViajes.viajes())
             }
         }
     }
 
-    // Lista filtrada en tiempo real
     // Lista filtrada en tiempo real: solo los viajes de este pasajero y que coincidan con la búsqueda
     val viajesFiltrados: StateFlow<List<Viajes>> = combine(
         textoBusqueda,
