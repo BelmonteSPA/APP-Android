@@ -25,4 +25,9 @@ class SesionRepository(
         sesionDao.guardar(sesion)
         return sesion
     }
+
+    //Cerrar sesion: borra el token de Room (la app vuelve a quedar sin servidor)
+    suspend fun cerrarSesion() {
+        sesionDao.borrar()
+    }
 }

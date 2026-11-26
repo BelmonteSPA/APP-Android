@@ -487,9 +487,11 @@ fun PerfilScreen(
         // Cerrar sesión: borra la cuenta activa y vuelve al login
         OutlinedButton(
             onClick = {
-                SesionManager.cerrarSesion()
-                navController.navigate(Routes.LOGIN) {
-                    popUpTo(navController.graph.id) { inclusive = true }
+                //borra el token de Room y despues vuelve al login
+                viajesViewModel.cerrarSesion {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
                 }
             },
             modifier = Modifier

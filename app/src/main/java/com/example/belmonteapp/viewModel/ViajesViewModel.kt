@@ -21,12 +21,14 @@ import kotlinx.coroutines.flow.first
 import android.location.Location
 import com.example.belmonteapp.modelo.Resena
 import com.example.belmonteapp.repository.ResenaRepository
+import com.example.belmonteapp.repository.SesionRepository
 
 
 //lo usan las pantallas del conductor y del admin
 class ViajesViewModel (application: Application) : AndroidViewModel(application){
 
     private val viajeRepository : ViajeRepository
+    private val sesionRepository : SesionRepository
 
     val resenas : StateFlow<List<Resena>>
     val MisViajes  by mutableStateOf("")
@@ -47,6 +49,7 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
 
         viajeRepository = ViajeRepository(database.viajeDao(), database.sesionDao())
         conductorRepository = ConductorRepository(database.conductorDao(), database.sesionDao())
+        sesionRepository = SesionRepository(database.sesionDao())
 
         viajes = viajeRepository.viajes.stateIn(
             scope = viewModelScope,
@@ -97,6 +100,15 @@ class ViajesViewModel (application: Application) : AndroidViewModel(application)
         }
     }
 
+    //Cerrar sesion (los 3 perfiles): borra el token de Room y la cuenta activa.
+    //onListo: la pantalla navega al login recien cuando se borro el token
+    fun cerrarSesion(onListo: () -> Unit) {
+        viewModelScope.launch {
+            sesionRepository.cerrarSesion()
+            SesionManager.cerrarSesion()
+            onListo()
+        }
+    }
     //admin: asigna o cambia el conductor y el viaje queda ASIGNADO
     //onListo: la pantalla navega recien cuando el cambio quedo guardado
     //(si navega antes, el ViewModel se destruye y se cancela la llamada al servidor)
