@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.example.belmonteapp.data.SesionManager
 
 class MisViajesViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -20,6 +21,10 @@ class MisViajesViewModel(application: Application) : AndroidViewModel(applicatio
 
     // Estado para el texto del buscador
     val textoBusqueda = MutableStateFlow("")
+
+    // RUT del pasajero que inició sesión: solo se muestran sus viajes
+    private val rutPasajero: String
+        get() = SesionManager.cuentaActual?.rut ?: ""
 
     init {
         viewModelScope.launch {
@@ -30,18 +35,18 @@ class MisViajesViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     // Lista filtrada en tiempo real
+    // Lista filtrada en tiempo real: solo los viajes de este pasajero y que coincidan con la búsqueda
     val viajesFiltrados: StateFlow<List<Viajes>> = combine(
         textoBusqueda,
         viajeRepository.viajes
     ) { query, lista ->
-        val datosAMostrar = if (lista.isEmpty()) DataViajes.viajes() else lista
-        datosAMostrar.filter { viaje ->
-            viaje.coincideConBusqueda(query)
+        lista.filter { viaje ->
+            viaje.pasajeroRut == rutPasajero && viaje.coincideConBusqueda(query)
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = DataViajes.viajes()
+        initialValue = emptyList()
     )
 
     fun onTextoBusquedaChange(nuevoTexto: String) {
